@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="30dp"
+        android:gravity="center"
+        android:text="@string/start_hint"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/Button05"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView1"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@android:drawable/alert_light_frame"
+        android:text="Sitting"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <Button
+        android:id="@+id/Button01"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Button05"
+        android:layout_alignRight="@+id/Button05"
+        android:layout_below="@+id/Button05"
+        android:background="@android:drawable/alert_light_frame"
+        android:text="Standing"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <Button
+        android:id="@+id/Button02"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Button01"
+        android:layout_alignRight="@+id/Button01"
+        android:layout_below="@+id/Button01"
+        android:background="@android:drawable/alert_light_frame"
+        android:text="Lying"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <Button
+        android:id="@+id/Button03"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Button02"
+        android:layout_alignRight="@+id/Button02"
+        android:layout_below="@+id/Button02"
+        android:background="@android:drawable/alert_light_frame"
+        android:text="Walking"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <Button
+        android:id="@+id/Button04"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Button03"
+        android:layout_alignRight="@+id/Button03"
+        android:layout_below="@+id/Button03"
+        android:background="@android:drawable/alert_light_frame"
+        android:text="Running"
+        android:textColor="@android:color/holo_blue_dark" />
+
+    <Button
+        android:id="@+id/Button06"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/Button04"
+        android:layout_alignRight="@+id/Button04"
+        android:layout_below="@+id/Button04"
+        android:background="@android:drawable/alert_light_frame"
+        android:text="Climbing Stairs"
+        android:textColor="@android:color/holo_blue_dark" />
+
+</RelativeLayout>
