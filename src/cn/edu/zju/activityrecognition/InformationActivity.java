@@ -18,17 +18,15 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class InformationActivity extends Activity {
 	RadioButton	femaleButton, maleButton;
-	EditText ageEditText;
-	Button howtoButton;
-	TextView idTextView;
+	EditText heightEditText;
+	Button nextButton;
 	
 	int id = -1;
-	int age = -1;
+	float height = -1;
 	int gender = -1;
 	static final int FEMALE = 0;
 	static final int MALE = 1;
@@ -43,8 +41,9 @@ public class InformationActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_information);
-		idTextView = (TextView) findViewById(R.id.textView2);
-		ageEditText = (EditText) findViewById(R.id.editText1);
+		setTitle(R.string.title_information_activity);
+		
+		heightEditText = (EditText) findViewById(R.id.editText1);
 		
 		femaleButton = (RadioButton) findViewById(R.id.radioButton1);
 		femaleButton.setOnClickListener(new OnClickListener() {
@@ -63,8 +62,8 @@ public class InformationActivity extends Activity {
 			}
 		});
 		
-		howtoButton = (Button) findViewById(R.id.button1);
-		howtoButton.setOnClickListener(new OnClickListener() {
+		nextButton = (Button) findViewById(R.id.button1);
+		nextButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Animation animation = AnimationUtils.loadAnimation(InformationActivity.this, R.anim.button_scale);
@@ -78,19 +77,20 @@ public class InformationActivity extends Activity {
 					@Override
 					public void onAnimationEnd(Animation animation) {
 						try{
-							age = Integer.parseInt(ageEditText.getText().toString());
+							height = Float.parseFloat(heightEditText.getText().toString());
 						} catch (Exception e){
-							Toast.makeText(InformationActivity.this, "Please enter your age...", Toast.LENGTH_LONG).show();
+							Toast.makeText(InformationActivity.this, getResources().getString(R.string.info_height_incomplete), Toast.LENGTH_LONG).show();
 						}
-						if(age>=0 && gender>=0){
+						if(height>0 && gender>=0){
 							initSubject();
-
 							
 							Intent intent = new Intent(InformationActivity.this, InstructionActivity.class);
 							intent.putExtra(EXTRA_PATH, subjectDirPath);
 							startActivity(intent);
+						} else if(gender<0) {
+							Toast.makeText(InformationActivity.this, getResources().getString(R.string.info_gender_incomplete), Toast.LENGTH_LONG).show();
 						} else {
-							Toast.makeText(InformationActivity.this, "Please fill in your age and gender...", Toast.LENGTH_LONG).show();
+							Toast.makeText(InformationActivity.this, getResources().getString(R.string.info_height_incorrect), Toast.LENGTH_LONG).show();
 						}
 					}
 				});
@@ -99,7 +99,7 @@ public class InformationActivity extends Activity {
 		});
 		
 		//create the root directory ActivityRecognitionTest
-		activityRecognitionDir = new File(Environment.getExternalStorageDirectory(), "ActivityRecognitionTest");
+		activityRecognitionDir = new File(Environment.getExternalStorageDirectory(), "ActivityRecognitionExperiment");
 		if(!activityRecognitionDir.exists()){
 			activityRecognitionDir.mkdir();
 		}
@@ -108,8 +108,6 @@ public class InformationActivity extends Activity {
 		id = sp.getInt(idKey, -1);
 		if(id == -1) id = 1;
 		else id++;
-		
-		idTextView.setText(String.format("%1$04d", id));
 	}
 	
 	void initSubject(){
@@ -123,9 +121,21 @@ public class InformationActivity extends Activity {
 		try {
 			File subjectInfo = new File(subjectDir.getAbsoluteFile(), "subject_info.txt");
 			FileOutputStream fos = new FileOutputStream(subjectInfo);
-			fos.write(String.valueOf(age).getBytes());
-			fos.write(" ".getBytes());
-			fos.write(String.valueOf(gender).getBytes());
+			
+			//write the gender
+			fos.write(getResources().getString(R.string.info_gender).getBytes());
+			if(gender == FEMALE)
+				fos.write(getResources().getString(R.string.gender_female).getBytes());
+			else 
+				fos.write(getResources().getString(R.string.gender_male).getBytes());
+			fos.write(";".getBytes());
+			
+			//write the height
+			fos.write(getResources().getString(R.string.info_height).getBytes());
+			fos.write(String.valueOf(height).getBytes());
+			fos.write("ft".getBytes());
+			fos.write(";".getBytes());
+			
 			fos.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

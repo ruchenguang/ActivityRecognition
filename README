@@ -1,2 +1,7 @@
-Please go to the following link for release information:
-https://docs.google.com/document/d/1O9FlG4pJis2iYaSe1eLWJ9n50pBcuBmmheWGMXR7SCM/edit
+This is a collaborated project between UCSB and ZJU on activity recognitiona with accelerometer data.
+For now, this branch is for collecting accelerometer and other sensors' data (maybe later) from LPMS-B.
+I'll give branches for both collecting data from LPMS-B and from Android phone directly.
+
+Participants:
+	LIU, I-Hsiu@UCSB
+	RU, Chenguang@ZJU

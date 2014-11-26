@@ -1,28 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="app_name">AR Exp.</string>
-    <string name="title_activity_instruction">InstructionActivity</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">AR Exp</string>
+    <string name="title_activity">Activity Recognition Experiment</string>
+    
+    <string name="button_next">Next</string>
+    
+    <!-- For InformationActivity -->
+    <string name="title_information_activity">Welcome to our experiment!</string>
+    <string name="welcome_message">Thank you for participating the experiment. The data you provided will be kept confidential and only for research use.</string>
+    <string name="enter_info">Please enter your information:</string>
+    <string name="info_gender">Gender:</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="info_height">Height:</string>
+    <string name="height_hint">ft</string>
+    <string name="info_height_incorrect">Please fill in your true height!</string>
+    <string name="info_height_incomplete">Please fill in your height!</string>
+    <string name="info_gender_incomplete">Please fill in your gender!</string>
+    
+    <!-- For InstructionActivity -->
+    <string name="instruction_attach">Please attach the LPMS-B sensor at your left chest with the labeled orientation.</string>
+    
+    <!-- For ConnectionActivity -->
+    <string name="instruction_poweron">Please press the gray button on the sensor to power it on.</string>
+    <string name="instruction_wait">Wait until the green light LED is blinking.</string>
+    <string name="instruction_connect">Press the “Connect” button to connect the sensor to phone.</string>
+    <string name="button_connect">Connect</string>
+    
+    <!-- For MainActivity -->
+    <string name="button_sitting">Sitting (60s)</string>
+    <string name="button_standing">Standing (60s)</string>
+    <string name="button_lying">Lying (60s)</string>
+    <string name="button_walking">Walking (60s)</string>
+    <string name="button_running">Running (60s)</string>
+    <string name="button_climbingstairs">Climbing Stairs (60s)</string>
+    <string name="relative_sitting">Relative motion in Sitting</string>
+    <string name="relative_standing">Relative motion in Standing</string>
+    <string name="relative_lying">Relative motion in lying</string>
+    
+    
+    <!-- Deprecated -->
     <string name="ready">Okay, I\'m ready to connect!</string>
     <string name="step1">Step 1</string>
     <string name="step1_content">Attach the sensor to your left chest</string>
     <string name="step2">Step 2</string>
     <string name="step2_content">Turn on the sensor</string>
-    <string name="title_activity">Activity Recognition Experiment</string>
     <string name="instruction_image">Instruction Image</string>
-    <string name="welcome">Welcome to our experiment for \nactivity recognition!</string>
     <string name="test_id">Your test ID is: \ </string>
     <string name="howto">Show me the howto</string>
-    <string name="information">Please fill in your age and gender</string>
-    <string name="gender">Gender: \ </string>
-    <string name="age">Age: \ </string>
-    <string name="age_hint">your age is</string>
-    <string name="male">Male</string>
-    <string name="female">Female</string>
-    <string name="number">001</string>
     <string name="start_hint">Press a button to start</string>
     <string name="title_activity_data_collection">DataCollectionActivity</string>
-
+    
 </resources>
