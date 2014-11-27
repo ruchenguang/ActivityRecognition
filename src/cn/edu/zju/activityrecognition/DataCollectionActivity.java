@@ -26,9 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class DataCollectionActivity extends Activity {
-	BluetoothAdapter mAdapter;
-	LpmsBThread mLpmsB;
-	
 	Button startButton, redoButton;
 	TextView currentTextView, nextTextView, next2TextView, pastTextView;
 
@@ -56,7 +53,7 @@ public class DataCollectionActivity extends Activity {
 		next2TextView = (TextView) findViewById(R.id.TextView03);
 		
 		startButton = (Button) findViewById(R.id.button2);
-		redoButton = (Button) findViewById(R.id.button1);
+		redoButton = (Button) findViewById(R.id.buttonNext);
 		startButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -77,9 +74,9 @@ public class DataCollectionActivity extends Activity {
 					//start data collection
 					if(fos == null) Toast.makeText(DataCollectionActivity.this, 
 							"Error in the file system", Toast.LENGTH_LONG).show();
-					else if(!mLpmsB.isConnected) 
-						Toast.makeText(DataCollectionActivity.this, 
-							"The sensor is not connected", Toast.LENGTH_LONG).show();
+//					else if(!mLpmsB.isConnected) 
+//						Toast.makeText(DataCollectionActivity.this, 
+//							"The sensor is not connected", Toast.LENGTH_LONG).show();
 					else{
 						timer.schedule(dataCollector, 10, 10);
 						startButton.setText("Pause");
@@ -102,22 +99,20 @@ public class DataCollectionActivity extends Activity {
 			}
 		});
 		
-		mAdapter = BluetoothAdapter.getDefaultAdapter();	
-		
 		prepareStartState();
 	}
 	
 	// Everytime the activity is resumed re-connect to LPMS-B
     @Override
     protected void onResume() {
-		if (mAdapter != null) {
-			// Creates LPMS-B controller object using Bluetooth adapter mAdapter
-			mLpmsB = new LpmsBThread(mAdapter);
-			// Sets acquisition paramters (Must be the same as set in LpmsControl app)
-			mLpmsB.setAcquisitionParameters(true, true, true, true, true, false);			
-			// Tries to connect to LPMS-B with Bluetooth ID 00:06:66:48:E3:7A
-			mLpmsB.connect("00:06:66:63:B2:BF", 0);
-		}	
+//		if (mAdapter != null) {
+//			// Creates LPMS-B controller object using Bluetooth adapter mAdapter
+//			mLpmsB = new LpmsBThread(mAdapter);
+//			// Sets acquisition paramters (Must be the same as set in LpmsControl app)
+//			mLpmsB.setAcquisitionParameters(true, true, true, true, true, false);			
+//			// Tries to connect to LPMS-B with Bluetooth ID 00:06:66:48:E3:7A
+//			mLpmsB.connect("00:06:66:63:B2:BF", 0);
+//		}	
 		
         super.onResume();
     }
@@ -125,7 +120,7 @@ public class DataCollectionActivity extends Activity {
 	@Override
     protected void onPause() {
 		// Disconnects LPMS-B
-		if (mLpmsB != null) mLpmsB.close();
+//		if (mLpmsB != null) mLpmsB.close();
 		if(isStarted && !isPaused && !isFinished){
 			startButton.setText("Continue");
 			isPaused = true;
@@ -233,15 +228,15 @@ public class DataCollectionActivity extends Activity {
 			public void run() {
 				if(isStarted && !isPaused && !isFinished){
 					DecimalFormat f0 = new DecimalFormat("+000.0000;-000.0000");
-					LpmsBData d = mLpmsB.getLpmsBData();
-					try {
-						fos.write((f0.format(d.acc[0])+" ").getBytes());
-						fos.write((f0.format(d.acc[1])+" ").getBytes());
-						fos.write((f0.format(d.acc[2])+" ").getBytes());
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+//					LpmsBData d = mLpmsB.getLpmsBData();
+//					try {
+//						fos.write((f0.format(d.acc[0])+" ").getBytes());
+//						fos.write((f0.format(d.acc[1])+" ").getBytes());
+//						fos.write((f0.format(d.acc[2])+" ").getBytes());
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
 				}
 			}
 		};

@@ -48,10 +48,9 @@ import android.content.Intent;
 import android.bluetooth.*;
 
 // Main activity. Connects to LPMS-B and displays orientation values
-public class LpmsBMainActivity extends Activity
+public class MainActivity extends Activity
 {
 	BluetoothAdapter mAdapter;
-	LpmsBThread mLpmsB;
 	
 	Button sittingButton, standingButton, lyingButton, walkingButton, runningButton, climbingButton;
 	// Initializes application
@@ -71,7 +70,7 @@ public class LpmsBMainActivity extends Activity
         sittingButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Animation animation = AnimationUtils.loadAnimation(LpmsBMainActivity.this, R.anim.button_scale);
+				Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.button_scale);
 				animation.setAnimationListener(new AnimationListener() {
 					@Override
 					public void onAnimationStart(Animation animation) {
@@ -81,7 +80,7 @@ public class LpmsBMainActivity extends Activity
 					}
 					@Override
 					public void onAnimationEnd(Animation animation) {
-						Intent intent = new Intent(LpmsBMainActivity.this, DataCollectionActivity.class);
+						Intent intent = new Intent(MainActivity.this, DataCollectionActivity.class);
 						startActivity(intent);		
 					}
 				});

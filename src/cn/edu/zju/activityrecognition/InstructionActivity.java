@@ -28,7 +28,7 @@ public class InstructionActivity extends Activity {
 		stepTv = (TextView) findViewById(R.id.textView1);
 		instructionTv = (TextView) findViewById(R.id.TextView01);
 		
-		btn = (Button) findViewById(R.id.button1);
+		btn = (Button) findViewById(R.id.buttonNext);
 		btn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -42,16 +42,8 @@ public class InstructionActivity extends Activity {
 					}
 					@Override
 					public void onAnimationEnd(Animation animation) {
-						if(step == 1){
-							stepTv.setText(R.string.step2);
-							instructionTv.setText(R.string.step2_content);
-							btn.setText(R.string.ready);
-							step ++;
-						}
-						else if(step == 2){
-							Intent intent = new Intent(InstructionActivity.this, LpmsBMainActivity.class);
-							startActivity(intent);
-						}
+						Intent intent = new Intent(InstructionActivity.this, ConnectionActivity.class);
+						startActivity(intent);
 					}
 				});
 				v.startAnimation(animation);

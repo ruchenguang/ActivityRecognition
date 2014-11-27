@@ -62,7 +62,7 @@ public class InformationActivity extends Activity {
 			}
 		});
 		
-		nextButton = (Button) findViewById(R.id.button1);
+		nextButton = (Button) findViewById(R.id.buttonNext);
 		nextButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -79,18 +79,26 @@ public class InformationActivity extends Activity {
 						try{
 							height = Float.parseFloat(heightEditText.getText().toString());
 						} catch (Exception e){
-							Toast.makeText(InformationActivity.this, getResources().getString(R.string.info_height_incomplete), Toast.LENGTH_LONG).show();
-						}
-						if(height>0 && gender>=0){
+							height = -1;
+						} 
+						
+						if(gender<0 && height<= 0)
+							Toast.makeText(InformationActivity.this, 
+									getResources().getString(R.string.info_incomplete), 
+									Toast.LENGTH_SHORT).show();
+						else if(gender<0)
+							Toast.makeText(InformationActivity.this, 
+									getResources().getString(R.string.info_gender_incomplete), 
+									Toast.LENGTH_SHORT).show();
+						else if(height<=0)
+							Toast.makeText(InformationActivity.this, 
+									getResources().getString(R.string.info_height_incomplete), 
+									Toast.LENGTH_SHORT).show();
+						else{
 							initSubject();
-							
 							Intent intent = new Intent(InformationActivity.this, InstructionActivity.class);
 							intent.putExtra(EXTRA_PATH, subjectDirPath);
 							startActivity(intent);
-						} else if(gender<0) {
-							Toast.makeText(InformationActivity.this, getResources().getString(R.string.info_gender_incomplete), Toast.LENGTH_LONG).show();
-						} else {
-							Toast.makeText(InformationActivity.this, getResources().getString(R.string.info_height_incorrect), Toast.LENGTH_LONG).show();
 						}
 					}
 				});

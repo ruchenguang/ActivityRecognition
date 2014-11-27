@@ -20,32 +20,43 @@
         android:screenOrientation="portrait" >
         <activity
             android:name=".InformationActivity"
-            android:theme="@android:style/Theme.Holo.Light" 
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".InstructionActivity"
-            android:label="@string/title_activity"
-            android:theme="@android:style/Theme.Holo.Light" 
-            android:screenOrientation="portrait">
+            android:label="@string/title_instruction_activity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light" >
         </activity>
         <activity
-            android:name=".LpmsBMainActivity"
-            android:label="@string/title_activity"
-            android:configChanges="orientation|keyboardHidden"
+            android:name=".ConnectionActivity"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light" 
-            android:screenOrientation="portrait">
+            android:label="@string/title_connection_activity" >
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:label="@string/title_activity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light" >
         </activity>
         <activity
             android:name=".DataCollectionActivity"
             android:label="@string/title_activity"
-            android:theme="@android:style/Theme.Holo.Light"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Holo.Light" >
         </activity>
+        
+        <service
+            android:name=".BluetoothService">
+        </service>
     </application>
 
 </manifest>
