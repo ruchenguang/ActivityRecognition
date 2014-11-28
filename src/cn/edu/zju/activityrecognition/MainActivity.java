@@ -36,59 +36,201 @@
 package cn.edu.zju.activityrecognition;
 
 
+import java.util.ArrayList;
+
 import android.app.*;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
-import android.widget.*;
-import android.os.*;
 import android.content.Intent;
-import android.bluetooth.*;
+import android.util.Log;
+import android.view.View;
+import android.widget.*;
+import android.widget.AdapterView.OnItemClickListener;
+import android.os.*;
 
 // Main activity. Connects to LPMS-B and displays orientation values
-public class MainActivity extends Activity
-{
-	BluetoothAdapter mAdapter;
+public class MainActivity extends Activity{
+	public static final String TAG = "ActivityRecognition::MainActivity";
+	public static final String EXTRA_ACTIVITY = "MainActivity::extra_activity";	
+	public static final int REQUEST_CODE = 0;
 	
-	Button sittingButton, standingButton, lyingButton, walkingButton, runningButton, climbingButton;
+	public static ArrayList<Activity> activities;
+	public static ArrayList<String> activityTitles;
+	public static int activityNum = 9; 
+	
+	ListView listView;
+	
 	// Initializes application
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);	
-		
-        sittingButton = (Button) findViewById(R.id.Button05);
-        standingButton = (Button) findViewById(R.id.Button01);
-        lyingButton = (Button) findViewById(R.id.Button02);
-        walkingButton = (Button) findViewById(R.id.Button03);
-        runningButton = (Button) findViewById(R.id.Button04);
-        climbingButton = (Button) findViewById(R.id.Button06);
+        setContentView(R.layout.activity_main);	
         
-        sittingButton.setOnClickListener(new OnClickListener() {
+        initActivitiesAndTitles();
+
+        listView = (ListView) findViewById(R.id.listView1);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), 
+        		R.layout.listview_string, R.id.textView1, activityTitles);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onClick(View v) {
-				Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.button_scale);
-				animation.setAnimationListener(new AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation animation) {
-					}
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-					}
-					@Override
-					public void onAnimationEnd(Animation animation) {
-						Intent intent = new Intent(MainActivity.this, DataCollectionActivity.class);
-						startActivity(intent);		
-					}
-				});
-				v.startAnimation(animation);
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Intent intent = new Intent(MainActivity.this, DataCollectionActivity.class);
+				intent.putExtra(EXTRA_ACTIVITY, position);
+				startActivityForResult(intent, position);
 			}
 		});
-        
-		// Gets default Bluetooth adapter
-		mAdapter = BluetoothAdapter.getDefaultAdapter();				
     }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	Log.d(TAG, "DataCollectionActivity has returned");
+    	TextView tv = (TextView) listView.getChildAt(requestCode).findViewById(R.id.textView1);
+    	if(resultCode == RESULT_OK){
+    		tv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+    	} else if(resultCode == RESULT_CANCELED){
+    		tv.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+    	}
+    	
+    	super.onActivityResult(requestCode, resultCode, data);
+    }
+    
+    void initActivitiesAndTitles(){
+    	activities = new ArrayList<MainActivity.Activity>();
+    	//initiate activities
+    	ArrayList<Step> steps;
+    	//sitting
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Sit straight", 60));
+    	activities.add(new Activity(
+    			"sitting", R.string.sitting, 
+    			R.string.instruction_activity_sitting,
+    			R.drawable.sitting,
+    			steps));
+    	//relative sitting
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Sit straight", 15));
+    	steps.add(new Step("Lean forward", 5));
+    	steps.add(new Step("Lean backward", 5));
+    	steps.add(new Step("Rotate runk to right", 5));
+    	steps.add(new Step("Rotate runk to left", 5));
+    	steps.add(new Step("Stand up", 5));
+    	activities.add(new Activity(
+    			"relative_sitting", 
+    			R.string.relative_sitting,
+    			R.string.instruction_activity_relative_sitting,
+    			R.drawable.sitting,
+    			steps));
+    	//standing
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Stand still", 60));
+    	activities.add(new Activity(
+    			"standing", 
+    			R.string.standing,
+    			R.string.instruction_activity_standing,
+    			R.drawable.standing,
+    			steps));
+    	//relative standing
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Stand still", 15));
+    	steps.add(new Step("Rotate runk to right", 5));
+    	steps.add(new Step("Rotate runk to left", 5));
+    	steps.add(new Step("Move up and down left arm", 5));
+    	steps.add(new Step("Move up and down right arm", 5));
+    	activities.add(new Activity(
+    			"relative_standing", 
+    			R.string.relative_standing,
+    			R.string.instruction_activity_relative_standing,
+    			R.drawable.standing, 
+    			steps));
+    	//lying
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Lying down", 60));
+    	activities.add(new Activity(
+    			"lying", 
+    			R.string.lying,
+    			R.string.instruction_activity_lying,
+    			R.drawable.lying,
+    			steps));
+    	//relative lying
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Lying", 15));
+    	steps.add(new Step("Turn to left", 5));
+    	steps.add(new Step("Turn to right", 5));
+    	steps.add(new Step("Sit up", 5));
+    	activities.add(new Activity(
+    			"relative_lying", 
+    			R.string.relative_lying,
+    			R.string.instruction_activity_relative_lying,
+    			R.drawable.lying,
+    			steps));
+    	//walking
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Walking", 120));
+    	activities.add(new Activity(
+    			"walking", 
+    			R.string.walking,
+    			R.string.instruction_activity_walking,
+    			R.drawable.walking,
+    			steps));
+    	//running
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Runnning", 120));
+    	activities.add(new Activity(
+    			"running", 
+    			R.string.running,
+    			R.string.instruction_activity_running,
+    			R.drawable.running,
+    			steps));
+    	//climbing stairs
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Climbing", 0));
+    	activities.add(new Activity(
+    			"climbingstairs", 
+    			R.string.climbingstairs,
+    			R.string.instruction_activity_climbing,
+    			R.drawable.climbing,
+    			steps
+    	));
+    	
+    	//initiate activities' title
+    	activityTitles = new ArrayList<String>();
+    	for(int i=0; i<activityNum; i++){
+    		activityTitles.add(activities.get(i).title);
+    	}
+    }
+    
+    class Activity{
+    	String title;
+    	String activity;
+    	String instruction;
+    	int picResourceId;
+    	ArrayList<Step> steps = new ArrayList<Step>();
+    	public Activity(String activity, int titleResouceId, int instructionResouceId, int picResourceId, 
+    			ArrayList<Step> steps) {
+    		this.activity = activity;
+    		this.title = getResources().getString(titleResouceId);
+    		this.instruction = getResources().getString(instructionResouceId);
+    		this.picResourceId = picResourceId;
+    		this.steps.addAll(steps);
+		}
+    	
+    	public ArrayList<Step> getSteps() {
+    		ArrayList<Step> stepsToCopy = new ArrayList<MainActivity.Step>();
+    		for(int i=0; i<steps.size(); i++){
+    			Step step = steps.get(i);
+    			stepsToCopy.add(new Step(step.stepDescription, step.time));
+    		}
+			return stepsToCopy;
+		}
+    }
+    
+	class Step{
+		String stepDescription;
+		int time;
+		public Step(String description, int seconds) {
+			time = seconds;
+			stepDescription = description;
+		}
+	}
 }

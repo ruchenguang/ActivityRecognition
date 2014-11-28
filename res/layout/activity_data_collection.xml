@@ -11,12 +11,10 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_margin="20dp"
-        android:gravity="center"
         android:text="Sitting"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="@android:color/holo_blue_dark"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textSize="22sp" />
 
     <Button
         android:id="@+id/buttonNext"

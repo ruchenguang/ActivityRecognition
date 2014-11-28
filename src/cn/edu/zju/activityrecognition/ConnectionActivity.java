@@ -19,11 +19,11 @@ public class ConnectionActivity extends Activity {
 	Button btnNext, btnConnect; 
 	Intent serviceIntent;
 	
-	 private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
-			if(action.equals(BluetoothService.ACTION_BT_CONNECTED)){
+			if(action.equals(BluetoothService.ACTION_BT_CONNECTED) || BluetoothService.isDebug){
 				btnConnect.setText(R.string.connected);
 				btnConnect.setTextColor(getResources().getColor(color.holo_blue_dark));
 				
@@ -49,7 +49,7 @@ public class ConnectionActivity extends Activity {
 					}
 				});				
 			}
-			if(action.equals(BluetoothService.ACTION_BT_NOT_CONNECTED)){
+			if(action.equals(BluetoothService.ACTION_BT_NOT_CONNECTED) && !BluetoothService.isDebug){
 				stopService(serviceIntent);
 				
 				btnConnect.setText(R.string.connection_failed);
@@ -57,7 +57,7 @@ public class ConnectionActivity extends Activity {
 				
 				Toast.makeText(ConnectionActivity.this, 
 						intent.getStringExtra(BluetoothService.EXTRA_REASON_NOT_CONNECTED), 
-						Toast.LENGTH_SHORT).show();
+						Toast.LENGTH_SHORT).show();				
 			}
 		}
 	};

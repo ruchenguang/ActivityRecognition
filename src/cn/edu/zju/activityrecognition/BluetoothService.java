@@ -25,7 +25,10 @@ public class BluetoothService extends Service {
 	public static final String EXTRA_REASON_NOT_CONNECTED = "Bluetooth::reason_not_connected";
 	
 	BluetoothAdapter adapter;
-	LpmsBThread lpThread;
+	static LpmsBThread lpThread;
+	
+	public static final boolean isDebug = true;
+	public static boolean isConnected = false;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -62,6 +65,10 @@ public class BluetoothService extends Service {
 
 		if(lpThread != null) lpThread.close();
 		super.onDestroy();
+	}
+	
+	public static LpmsBData getSensorData(){
+		return lpThread.getLpmsBData();
 	}
 	
 	// Thread class to retrieve data from LPMS-B (and eventually control configuration of LPMS-B)
@@ -109,7 +116,6 @@ public class BluetoothService extends Service {
 		int rxIndex = 0;
 		byte b = 0;
 		int lrcCheck;
-	    boolean isConnected = false;
 		int nBytes;
 		int timeout;
 		boolean waitForAck;
