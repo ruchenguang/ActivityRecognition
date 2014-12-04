@@ -16,6 +16,8 @@ import cn.edu.zju.activityrecognition.MainActivity.Step;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -50,6 +52,9 @@ public class DataCollectionActivity extends Activity {
 	
 	Timer timer;
 	TimerTask textViewUpdater, dataCollector;
+	SoundPool soundPool;
+	int clickSoundId, beepSoundId;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -127,7 +132,16 @@ public class DataCollectionActivity extends Activity {
 				prepareStartState();
 			}
 		});
+		
+		soundPool = new SoundPool(3, AudioManager.STREAM_SYSTEM, 0);
+		clickSoundId = soundPool.load(this, R.raw.click, 1);
+		beepSoundId = soundPool.load(this, R.raw.beep, 0);
+		
 		prepareStartState();
+		
+		if(intent.getBooleanExtra(MainActivity.EXTRA_ACTIVITY_ISFINISHED, false)){
+			prepareFinishState();
+		}
 	}
 	
 	@Override
@@ -159,14 +173,9 @@ public class DataCollectionActivity extends Activity {
 	}
 	
 	void finishColleting(){
-		timer.cancel();
-		startButton.setText("Finished!");
-		startButton.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
-		isFinished = true;
-		Log.d("debug", "Cnt is " + debugCnt);
+		prepareFinishState();
 		
-		//return to main acitivty
-		this.setResult(RESULT_OK);
+		timer.cancel();
 		this.finish();
 	}
 	
@@ -225,7 +234,6 @@ public class DataCollectionActivity extends Activity {
 					Handler handler = new Handler(Looper.getMainLooper());
 					handler.post(new Runnable() {
 						public void run() {
-							Log.d("timer", "textViewUpdater running " + debugCnt);
 							int remainingTime = --steps.get(stepIndex).time;
 							if(remainingTime == -1) {
 								remainingTime = ++steps.get(stepIndex).time;
@@ -254,15 +262,20 @@ public class DataCollectionActivity extends Activity {
 							else 
 								next2TextView.setText(" ");
 							
+							if(!isLastSecond)
+								soundPool.play(clickSoundId, 1, 1, 1, 0, (float) 0.8);
+							
 							if(remainingTime == 0){ 
 								if(stepIndex == steps.size()-1){
 									if(isLastSecond){
 										finishColleting();
+										soundPool.play(beepSoundId, 1, 1, 1, 0, 1);
 									}
 									isLastSecond = true;
 								} else 
 									stepIndex++;
 							}
+							
 						}
 					});
 				}
@@ -272,7 +285,6 @@ public class DataCollectionActivity extends Activity {
 			@Override
 			public void run() {
 				if(isStarted && !isPaused && !isFinished){
-					debugCnt ++;
 					DecimalFormat f0 = new DecimalFormat("+000.0000;-000.0000");
 					LpmsBData d = BluetoothService.getSensorData();
 					try {
@@ -302,5 +314,11 @@ public class DataCollectionActivity extends Activity {
 		};
 	}
 	
-	long debugCnt = 0;
+	void prepareFinishState(){
+		startButton.setText("Finished!");
+		startButton.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+		isFinished = true;
+		//return to main acitivty
+		this.setResult(RESULT_OK);
+	}
 }

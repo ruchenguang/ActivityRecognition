@@ -50,6 +50,7 @@ import android.os.*;
 public class MainActivity extends Activity{
 	public static final String TAG = "ActivityRecognition::MainActivity";
 	public static final String EXTRA_ACTIVITY = "MainActivity::extra_activity";	
+	public static final String EXTRA_ACTIVITY_ISFINISHED = "MainActivity::extra_activity_isfinshed";	
 	public static final int REQUEST_CODE = 0;
 	
 	public static ArrayList<Activity> activities;
@@ -77,6 +78,7 @@ public class MainActivity extends Activity{
 					int position, long id) {
 				Intent intent = new Intent(MainActivity.this, DataCollectionActivity.class);
 				intent.putExtra(EXTRA_ACTIVITY, position);
+				intent.putExtra(EXTRA_ACTIVITY_ISFINISHED, activities.get(position).isFinished);
 				startActivityForResult(intent, position);
 			}
 		});
@@ -88,6 +90,7 @@ public class MainActivity extends Activity{
     	TextView tv = (TextView) listView.getChildAt(requestCode).findViewById(R.id.textView1);
     	if(resultCode == RESULT_OK){
     		tv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+    		activities.get(requestCode).isFinished = true;
     	} else if(resultCode == RESULT_CANCELED){
     		tv.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
     	}
@@ -111,9 +114,13 @@ public class MainActivity extends Activity{
     	steps = new ArrayList<Step>();
     	steps.add(new Step("Sit straight", 15));
     	steps.add(new Step("Lean forward", 5));
+    	steps.add(new Step("Sit back straight", 5));
     	steps.add(new Step("Lean backward", 5));
-    	steps.add(new Step("Rotate runk to right", 5));
-    	steps.add(new Step("Rotate runk to left", 5));
+    	steps.add(new Step("Sit back straight", 5));
+    	steps.add(new Step("Rotate trunk to right", 5));
+    	steps.add(new Step("Rotate back to straight", 5));
+    	steps.add(new Step("Rotate trunk to left", 5));
+    	steps.add(new Step("Rotate back to straight", 5));
     	steps.add(new Step("Stand up", 5));
     	activities.add(new Activity(
     			"relative_sitting", 
@@ -133,10 +140,14 @@ public class MainActivity extends Activity{
     	//relative standing
     	steps = new ArrayList<Step>();
     	steps.add(new Step("Stand still", 15));
-    	steps.add(new Step("Rotate runk to right", 5));
-    	steps.add(new Step("Rotate runk to left", 5));
+    	steps.add(new Step("Rotate trunk to right", 5));
+    	steps.add(new Step("Rotate back to the front", 5));
+    	steps.add(new Step("Rotate trunk to left", 5));
+    	steps.add(new Step("Rotate back to the front", 5));
     	steps.add(new Step("Move up and down left arm", 5));
+    	steps.add(new Step("Stand still", 5));
     	steps.add(new Step("Move up and down right arm", 5));
+    	steps.add(new Step("Stand still", 5));
     	activities.add(new Activity(
     			"relative_standing", 
     			R.string.relative_standing,
@@ -154,9 +165,11 @@ public class MainActivity extends Activity{
     			steps));
     	//relative lying
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Lying", 15));
+    	steps.add(new Step("Lying with face up", 15));
     	steps.add(new Step("Turn to left", 5));
+    	steps.add(new Step("Lying back with face up", 5));
     	steps.add(new Step("Turn to right", 5));
+    	steps.add(new Step("Lying back with face up", 5));
     	steps.add(new Step("Sit up", 5));
     	activities.add(new Activity(
     			"relative_lying", 
@@ -205,6 +218,8 @@ public class MainActivity extends Activity{
     	String activity;
     	String instruction;
     	int picResourceId;
+    	boolean isFinished = false;
+    	
     	ArrayList<Step> steps = new ArrayList<Step>();
     	public Activity(String activity, int titleResouceId, int instructionResouceId, int picResourceId, 
     			ArrayList<Step> steps) {
