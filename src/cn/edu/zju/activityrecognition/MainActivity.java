@@ -36,12 +36,26 @@
 package cn.edu.zju.activityrecognition;
 
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.Buffer;
 import java.util.ArrayList;
+import java.util.List;
 
+import android.R.anim;
 import android.app.*;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.text.style.BulletSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 import android.os.*;
@@ -51,23 +65,29 @@ public class MainActivity extends Activity{
 	public static final String TAG = "ActivityRecognition::MainActivity";
 	public static final String EXTRA_ACTIVITY = "MainActivity::extra_activity";	
 	public static final String EXTRA_ACTIVITY_ISFINISHED = "MainActivity::extra_activity_isfinshed";	
-	public static final int REQUEST_CODE = 0;
+	public static final String BUNDLE_FINISHED_ACTIVITIES = "MainActivity::bundle_finished_activities";
+	public static final byte ASK_CODE_ZERO = 48;
 	
 	public static ArrayList<Activity> activities;
 	public static ArrayList<String> activityTitles;
-	public static int activityNum = 9; 
-	
+	public static int activityNum; 
+
+	public static File activityCompletionStateFile;
 	ListView listView;
+	TextView tv;
 	
+	boolean isAllFinished = false;
+	Button finishButton;
 	// Initializes application
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);	
+        ExitApplication.activityList.add(this);
         
         initActivitiesAndTitles();
-
+        
         listView = (ListView) findViewById(R.id.listView1);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), 
         		R.layout.listview_string, R.id.textView1, activityTitles);
@@ -79,53 +99,144 @@ public class MainActivity extends Activity{
 				Intent intent = new Intent(MainActivity.this, DataCollectionActivity.class);
 				intent.putExtra(EXTRA_ACTIVITY, position);
 				intent.putExtra(EXTRA_ACTIVITY_ISFINISHED, activities.get(position).isFinished);
-				startActivityForResult(intent, position);
+				startActivity(intent);
+			}
+		});
+        
+        finishButton = (Button) findViewById(R.id.button1);
+        finishButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Animation animation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.button_scale);
+				animation.setAnimationListener(new AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) {
+					}
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+					}
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						if(isAllFinished){
+							AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+							if(isAllFinished){
+								builder.setTitle(R.string.title_exit_finished);
+								builder.setMessage(R.string.message_exit_finished);
+							}
+							else{
+								builder.setTitle(R.string.title_exit_not_finished);
+								builder.setMessage(R.string.message_exit_not_finished);
+							}
+							builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.cancel();
+								}
+							});
+							builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									List<android.app.Activity> activityList = ExitApplication.activityList;
+									for(int i=0; i<activityList.size(); i++){
+										if(activityList.get(i) != null)
+											activityList.get(i).finish();
+									}
+								}
+							});
+							builder.create().show();
+							stopService(new Intent(MainActivity.this, BluetoothService.class));
+						} else {
+							Toast.makeText(MainActivity.this, "Not all the activities are finished yet. Please go on.", Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
+				v.startAnimation(animation);
 			}
 		});
     }
     
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	Log.d(TAG, "DataCollectionActivity has returned");
-    	TextView tv = (TextView) listView.getChildAt(requestCode).findViewById(R.id.textView1);
-    	if(resultCode == RESULT_OK){
-    		tv.setTextColor(getResources().getColor(android.R.color.darker_gray));
-    		activities.get(requestCode).isFinished = true;
-    	} else if(resultCode == RESULT_CANCELED){
-    		tv.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
-    	}
-    	
-    	super.onActivityResult(requestCode, resultCode, data);
+    protected void onResume() {
+        activityCompletionStateFile = new File(InformationActivity.subjectDirPath, "activityCompletionState.txt");
+        if(activityCompletionStateFile.exists()){
+        	Handler handler = new Handler(Looper.getMainLooper());
+        	handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						FileInputStream fis = new FileInputStream(activityCompletionStateFile);
+			        	byte[] buffer = new byte[activityNum];
+			        	fis.read(buffer);
+			        	fis.close();
+			        	int cnt = 0;
+			        	for(int i=0; i<activityNum; i++){
+			        		tv = (TextView) listView.getChildAt(i).findViewById(R.id.textView1);
+			        		if(buffer[i]-ASK_CODE_ZERO  == 1){
+			        			cnt++;
+			        			activities.get(i).isFinished = true;
+			            		tv.setTextColor(getResources().getColor(android.R.color.darker_gray));
+			        		} else {
+			        			activities.get(i).isFinished = false;
+			            		tv.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+			        		}
+			        	}
+			        	Log.d(TAG, cnt + " activities have been finished!");
+			        	if(cnt == activityNum){
+			        		finishButton.setText(R.string.button_finished);
+			        		finishButton.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+			        		isAllFinished = true;
+			        	} else {
+			        		finishButton.setText(R.string.button_not_finished);
+			        		isAllFinished = false;
+			        	}
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}, 100);
+			
+        } else {
+			try {
+				FileOutputStream fos = new FileOutputStream(activityCompletionStateFile);
+	        	byte[] buffer = new byte[activityNum];
+	        	for(int i=0; i<activityNum; i++){
+	        		buffer[i] = 0 + ASK_CODE_ZERO;
+	        	}
+	        	fos.write(buffer);
+	        	fos.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+        }
+    	super.onResume();
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	stopService(new Intent(this, BluetoothService.class));
+    	super.onDestroy();
     }
     
     void initActivitiesAndTitles(){
     	activities = new ArrayList<MainActivity.Activity>();
     	//initiate activities
     	ArrayList<Step> steps;
+    	//********************simple activity********************
     	//sitting
     	steps = new ArrayList<Step>();
     	steps.add(new Step("Sit straight", 60));
     	activities.add(new Activity(
     			"sitting", R.string.sitting, 
     			R.string.instruction_activity_sitting,
-    			R.drawable.sitting,
-    			steps));
-    	//relative sitting
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Sit straight", 15));
-    	steps.add(new Step("Lean forward", 5));
-    	steps.add(new Step("Sit back straight", 5));
-    	steps.add(new Step("Lean backward", 5));
-    	steps.add(new Step("Sit back straight", 5));
-    	steps.add(new Step("Rotate trunk to right", 5));
-    	steps.add(new Step("Rotate back to straight", 5));
-    	steps.add(new Step("Rotate trunk to left", 5));
-    	steps.add(new Step("Rotate back to straight", 5));
-    	steps.add(new Step("Stand up", 5));
-    	activities.add(new Activity(
-    			"relative_sitting", 
-    			R.string.relative_sitting,
-    			R.string.instruction_activity_relative_sitting,
     			R.drawable.sitting,
     			steps));
     	//standing
@@ -137,23 +248,6 @@ public class MainActivity extends Activity{
     			R.string.instruction_activity_standing,
     			R.drawable.standing,
     			steps));
-    	//relative standing
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Stand still", 15));
-    	steps.add(new Step("Rotate trunk to right", 5));
-    	steps.add(new Step("Rotate back to the front", 5));
-    	steps.add(new Step("Rotate trunk to left", 5));
-    	steps.add(new Step("Rotate back to the front", 5));
-    	steps.add(new Step("Move up and down left arm", 5));
-    	steps.add(new Step("Stand still", 5));
-    	steps.add(new Step("Move up and down right arm", 5));
-    	steps.add(new Step("Stand still", 5));
-    	activities.add(new Activity(
-    			"relative_standing", 
-    			R.string.relative_standing,
-    			R.string.instruction_activity_relative_standing,
-    			R.drawable.standing, 
-    			steps));
     	//lying
     	steps = new ArrayList<Step>();
     	steps.add(new Step("Lying down", 60));
@@ -161,20 +255,6 @@ public class MainActivity extends Activity{
     			"lying", 
     			R.string.lying,
     			R.string.instruction_activity_lying,
-    			R.drawable.lying,
-    			steps));
-    	//relative lying
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Lying with face up", 15));
-    	steps.add(new Step("Turn to left", 5));
-    	steps.add(new Step("Lying back with face up", 5));
-    	steps.add(new Step("Turn to right", 5));
-    	steps.add(new Step("Lying back with face up", 5));
-    	steps.add(new Step("Sit up", 5));
-    	activities.add(new Activity(
-    			"relative_lying", 
-    			R.string.relative_lying,
-    			R.string.instruction_activity_relative_lying,
     			R.drawable.lying,
     			steps));
     	//walking
@@ -195,18 +275,118 @@ public class MainActivity extends Activity{
     			R.string.instruction_activity_running,
     			R.drawable.running,
     			steps));
-    	//climbing stairs
+    	//climbing upstairs
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Climbing", 0));
+    	steps.add(new Step("Climbing Upstairs", 0));
     	activities.add(new Activity(
     			"climbingstairs", 
-    			R.string.climbingstairs,
-    			R.string.instruction_activity_climbing,
+    			R.string.climbing_upstairs,
+    			R.string.instruction_activity_climbing_upstairs,
+    			R.drawable.climbing,
+    			steps
+    	));
+    	//climbing downstairs
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Climbing Downstairs", 0));
+    	activities.add(new Activity(
+    			"climbingstairs", 
+    			R.string.climbing_downstairs,
+    			R.string.instruction_activity_climbing_downstairs,
     			R.drawable.climbing,
     			steps
     	));
     	
-    	//initiate activities' title
+    	//********************relative ********************
+    	//relative sitting
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Sit straight", 15));
+    	steps.add(new Step("Lean forward", 5));
+    	steps.add(new Step("Sit back straight", 5));
+    	steps.add(new Step("Lean backward", 5));
+    	steps.add(new Step("Sit back straight", 5));
+    	steps.add(new Step("Rotate trunk to right", 5));
+    	steps.add(new Step("Rotate back to straight", 5));
+    	steps.add(new Step("Rotate trunk to left", 5));
+    	steps.add(new Step("Rotate back to straight", 5));
+    	steps.add(new Step("Stand up", 5));
+    	activities.add(new Activity(
+    			"relative_sitting", 
+    			R.string.relative_sitting,
+    			R.string.instruction_activity_relative_sitting,
+    			R.drawable.sitting,
+    			steps));
+    	//relative standing
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Stand still", 15));
+    	steps.add(new Step("Rotate trunk to right", 5));
+    	steps.add(new Step("Rotate back to the front", 5));
+    	steps.add(new Step("Rotate trunk to left", 5));
+    	steps.add(new Step("Rotate back to the front", 5));
+    	steps.add(new Step("Move up and down left arm", 5));
+    	steps.add(new Step("Stand still", 5));
+    	steps.add(new Step("Move up and down right arm", 5));
+    	steps.add(new Step("Stand still", 5));
+    	activities.add(new Activity(
+    			"relative_standing", 
+    			R.string.relative_standing,
+    			R.string.instruction_activity_relative_standing,
+    			R.drawable.standing, 
+    			steps));
+    	//relative lying
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Lying with face up", 15));
+    	steps.add(new Step("Turn to left", 5));
+    	steps.add(new Step("Lying back with face up", 5));
+    	steps.add(new Step("Turn to right", 5));
+    	steps.add(new Step("Lying back with face up", 5));
+    	steps.add(new Step("Sit up", 5));
+    	activities.add(new Activity(
+    			"relative_lying", 
+    			R.string.relative_lying,
+    			R.string.instruction_activity_relative_lying,
+    			R.drawable.lying,
+    			steps));
+    	
+//    	//********************phone in pocket ********************
+//    	//sitting with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
+//    	steps.add(new Step("Keep sitting straight", 60));
+//    	activities.add(new Activity(
+//    			"sitting_with_phone_in_pocket", R.string.sitting_with_phone_in_pocket, 
+//    			R.string.instruction_activity_sitting_with_phone_in_pocket,
+//    			R.drawable.sitting,
+//    			steps));
+//    	//sitting with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
+//    	steps.add(new Step("Keep sitting straight", 60));
+//    	activities.add(new Activity(
+//    			"sitting_with_phone_in_pocket", R.string.sitting_with_phone_in_pocket, 
+//    			R.string.instruction_activity_sitting_with_phone_in_pocket,
+//    			R.drawable.sitting,
+//    			steps));
+//    	//sitting with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
+//    	steps.add(new Step("Keep sitting straight", 60));
+//    	activities.add(new Activity(
+//    			"sitting_with_phone_in_pocket", R.string.sitting_with_phone_in_pocket, 
+//    			R.string.instruction_activity_sitting_with_phone_in_pocket,
+//    			R.drawable.sitting,
+//    			steps));
+//    	//sitting with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then sit straight", 2));
+//    	steps.add(new Step("Keep sitting straight", 3));
+//    	activities.add(new Activity(
+//    			"sitting_with_phone_in_pocket", R.string.sitting_with_phone_in_pocket, 
+//    			R.string.instruction_activity_sitting_with_phone_in_pocket,
+//    			R.drawable.sitting,
+//    			steps));
+    	
+    	//initiate activities' title and number
+    	activityNum = activities.size();
     	activityTitles = new ArrayList<String>();
     	for(int i=0; i<activityNum; i++){
     		activityTitles.add(activities.get(i).title);

@@ -66,8 +66,14 @@ public class ConnectionActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_connection);
-		
+		ExitApplication.activityList.add(this);
+	}
+	
+	@Override
+	protected void onResume() {
 		btnConnect = (Button) findViewById(R.id.Button02);
+		btnConnect.setText(R.string.button_connect);
+		btnConnect.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
 		btnConnect.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -93,10 +99,9 @@ public class ConnectionActivity extends Activity {
 		});
 		
 		btnNext = (Button) findViewById(R.id.buttonNext);
-	}
-	
-	@Override
-	protected void onResume() {
+		btnNext.setClickable(false);
+		btnNext.setTextColor(getResources().getColor(android.R.color.darker_gray));
+		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(BluetoothService.ACTION_BT_CONNECTED);
 		intentFilter.addAction(BluetoothService.ACTION_BT_NOT_CONNECTED);
@@ -109,5 +114,11 @@ public class ConnectionActivity extends Activity {
 	protected void onPause() {
 		unregisterReceiver(broadcastReceiver);
 		super.onPause();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		stopService(serviceIntent);
+		super.onDestroy();
 	}
 }

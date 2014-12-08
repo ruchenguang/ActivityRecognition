@@ -1,15 +1,21 @@
 package cn.edu.zju.activityrecognition;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.List;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -32,6 +38,7 @@ public class InformationActivity extends Activity {
 	static final int MALE = 1;
 	
 	File activityRecognitionDir;
+	File subjectDir;
 	public static String subjectDirPath;
 	String idKey = "id_number";
 	final String EXTRA_PATH = "ActivityRecognition::SubjectDataPath";
@@ -41,6 +48,7 @@ public class InformationActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_information);
+		ExitApplication.activityList.add(this);
 		setTitle(R.string.title_information_activity);
 		
 		heightEditText = (EditText) findViewById(R.id.editText1);
@@ -118,9 +126,46 @@ public class InformationActivity extends Activity {
 		else id++;
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode == KeyEvent.KEYCODE_BACK){
+			if(null != subjectDir){
+				AlertDialog.Builder builder = new AlertDialog.Builder(InformationActivity.this);
+				builder.setTitle("Notice");
+				builder.setMessage("Press \"Yes\" will stop this app and none of your info or data will be avaiable again. Are you sure you want to exit?");
+				builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				});
+				builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						File readme = new File(subjectDir, "readme.txt");
+						try {
+							FileOutputStream fos = new FileOutputStream(readme);
+							fos.write("Data from this subject should not be used because he or she left this app in an unappropriate way.".getBytes());
+							fos.close();
+						} catch (FileNotFoundException e) {
+							e.printStackTrace();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						InformationActivity.this.finish();
+					}
+				});
+				builder.create().show();
+			}
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
 	void initSubject(){
 		//create a folder for this subject with its ID
-		File subjectDir = new File(activityRecognitionDir.getAbsoluteFile(), "subject_"+id);
+		DecimalFormat df = new DecimalFormat("00000");
+		subjectDir = new File(activityRecognitionDir.getAbsoluteFile(), "subject_"+df.format(id));
 		if(!subjectDir.exists()){
 			subjectDir.mkdir();
 		}

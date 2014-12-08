@@ -1,6 +1,7 @@
 package cn.edu.zju.activityrecognition;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.TimerTask;
 
 import cn.edu.zju.activityrecognition.MainActivity.Step;
 
+import android.R.integer;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -32,6 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class DataCollectionActivity extends Activity {
+	public static final int UNFINISHED = 0;
+	public static final int FINISHED = 1;
 	Button startButton, redoButton;
 	TextView currentTextView, nextTextView, next2TextView, pastTextView;
 	
@@ -47,6 +51,7 @@ public class DataCollectionActivity extends Activity {
 	boolean isUserControl = false;
 	boolean isLastSecond = false;
 	
+	File activityDir;
 	File activityDataFile[];
 	FileOutputStream fos[] = null;
 	
@@ -63,6 +68,9 @@ public class DataCollectionActivity extends Activity {
 		Intent intent = getIntent();
 		activityIndex = intent.getIntExtra(MainActivity.EXTRA_ACTIVITY, 0);
 		activity = MainActivity.activities.get(activityIndex);
+		
+		activityDir = new File(InformationActivity.subjectDirPath, activity.activity);
+		
 		if(activity.activity.equals("climbingstairs"))
 			isUserControl = true;
 		//initiate the user interface for different activity
@@ -85,7 +93,7 @@ public class DataCollectionActivity extends Activity {
 				v.startAnimation(animation);
 				if(isFinished){
 					Toast.makeText(DataCollectionActivity.this, 
-							"You have finished this test.", Toast.LENGTH_LONG).show();
+							"You have finished this test.", Toast.LENGTH_SHORT).show();
 				} else if(isPaused) {
 					//change to continue state
 					startButton.setText("Pause");
@@ -104,7 +112,7 @@ public class DataCollectionActivity extends Activity {
 					initDataFile();
 					
 					if(fos[0] == null) Toast.makeText(DataCollectionActivity.this, 
-							"Error in the file system", Toast.LENGTH_LONG).show();
+							"Error in the file system", Toast.LENGTH_SHORT).show();
 					else if(!BluetoothService.isConnected && !BluetoothService.isDebug) 
 						Toast.makeText(DataCollectionActivity.this, 
 							"The sensor seems not connected, please go back and try to connect it again.", 
@@ -128,8 +136,13 @@ public class DataCollectionActivity extends Activity {
 				Animation animation = AnimationUtils.loadAnimation(DataCollectionActivity.this, R.anim.button_scale);			
 				v.startAnimation(animation);
 				
-				destroy();				
+				destroy();
 				prepareStartState();
+				
+				//write to file that finish didn't count
+				writeCompletionState(UNFINISHED);
+				
+				delete(activityDir);
 			}
 		});
 		
@@ -157,6 +170,10 @@ public class DataCollectionActivity extends Activity {
     @Override
     protected void onDestroy() {
 		destroy();
+		if(!isFinished){
+			delete(activityDir);
+		}
+		soundPool.release();
         super.onDestroy();
     }
 	
@@ -171,8 +188,29 @@ public class DataCollectionActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
+
+    public static void delete(File file) {  
+        if (file.isFile()) {  
+            file.delete();  
+            return;  
+        }  
+  
+        if(file.isDirectory()){  
+            File[] childFiles = file.listFiles();  
+            if (childFiles == null || childFiles.length == 0) {  
+               file.delete();  
+                return;  
+            }  
+            for (int i = 0; i < childFiles.length; i++) {  
+                delete(childFiles[i]);  
+            }  
+            file.delete();  
+        }  
+    } 
 	
 	void finishColleting(){
+		writeCompletionState(FINISHED);
+		
 		prepareFinishState();
 		
 		timer.cancel();
@@ -181,7 +219,6 @@ public class DataCollectionActivity extends Activity {
 	
 	void initDataFile(){
 		//init the data file
-		File activityDir = new File(InformationActivity.subjectDirPath, activity.activity);
 		if(!activityDir.exists())
 			activityDir.mkdir();
 		String dataPath = activityDir.getAbsolutePath();
@@ -220,7 +257,7 @@ public class DataCollectionActivity extends Activity {
 			Step nextStep = steps.get(stepIndex+1);
 			nextTextView.setText(nextStep.stepDescription + " for " + nextStep.time + "s");
 		} else nextTextView.setText(" ");
-		if(steps.size()>(stepIndex+1)){
+		if(steps.size()>(stepIndex+2)){
 			Step next2Step = steps.get(stepIndex+2);
 			next2TextView.setText(next2Step.stepDescription + " for " + next2Step.time + "s");
 		} else next2TextView.setText(" ");
@@ -269,7 +306,9 @@ public class DataCollectionActivity extends Activity {
 								if(stepIndex == steps.size()-1){
 									if(isLastSecond){
 										finishColleting();
+										//play the beep sound for finish
 										soundPool.play(beepSoundId, 1, 1, 1, 0, 1);
+										//write the finish to file
 									}
 									isLastSecond = true;
 								} else 
@@ -320,5 +359,33 @@ public class DataCollectionActivity extends Activity {
 		isFinished = true;
 		//return to main acitivty
 		this.setResult(RESULT_OK);
+	}
+	
+	void writeCompletionState(int state){
+		File stateFile = MainActivity.activityCompletionStateFile;
+		byte[] buffer = new byte[MainActivity.activityNum];
+		
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(stateFile);
+			fis.read(buffer);
+			
+			for(int i=0; i<MainActivity.activityNum; i++){
+				if(i == activityIndex) buffer[i] = (byte) (state + MainActivity.ASK_CODE_ZERO);
+			}
+			
+			FileOutputStream fos = new FileOutputStream(stateFile);
+			fos.write(buffer);
+			
+			fis.close();
+			fos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

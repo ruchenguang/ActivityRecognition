@@ -40,10 +40,20 @@
     <string name="lying">Lying (60s)</string>
     <string name="walking">Walking (120s)</string>
     <string name="running">Running (120s)</string>
-    <string name="climbingstairs">Climbing Stairs (1F)</string>
+    <string name="climbing_upstairs">Climbing Upstairs (1F)</string>
+    <string name="climbing_downstairs">Climbing Downstairs (1F)</string>
     <string name="relative_sitting">Relative motion in Sitting</string>
     <string name="relative_standing">Relative motion in Standing</string>
     <string name="relative_lying">Relative motion in lying</string>
+    <string name="sitting_with_phone_in_pocket">Sitting with phone in pocket</string>
+    <string name="instruction_activity_sitting_with_phone_in_pocket">Press start button and 
+        then put the phone in your pants left/right pocket with screen on. Then sit down until beep rings.</string>
+    <string name="button_finished">I have finished all!</string>
+    <string name="button_not_finished">Finish Test</string>
+    <string name="title_exit_finished">Congratulations!</string>
+    <string name="title_exit_not_finished">Notice!</string>
+    <string name="message_exit_finished">You have helped finishing all the activities! Thanks again for participating. Do you want to leave now?</string>
+    <string name="message_exit_not_finished">You have not finished all the activities yet. None of the data will be saved. Are you sure you want to exist? </string>
     
     <!-- For DataColletionActivity -->
     <string name="title_activity_data_collection">Let\'s collect data</string>
@@ -52,7 +62,8 @@
     <string name="instruction_activity_lying">Please lying down for 60 seconds.</string>
     <string name="instruction_activity_walking">Please walk straight on a level floor with your normal speed for 120s.</string>
     <string name="instruction_activity_running">Please run straight on a level floor with your normal speed for 120s.</string>
-    <string name="instruction_activity_climbing">Please Climb one floor in HFH with your normal speed and press “finish” when done.</string>
+    <string name="instruction_activity_climbing_upstairs">Please Climb up one floor in HFH with your normal speed and press “finish” when done.</string>
+    <string name="instruction_activity_climbing_downstairs">Please Climb down one floor with your normal speed and press “finish” when done.</string>
     <string name="instruction_activity_relative_sitting">Relative motion in sitting.</string>
     <string name="instruction_activity_relative_standing">Relative motion in standing.</string>
     <string name="instruction_activity_relative_lying">Relative motion in Lying.</string>

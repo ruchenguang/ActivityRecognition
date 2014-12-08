@@ -24,6 +24,7 @@ public class InstructionActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_instruction);
+		ExitApplication.activityList.add(this);
 		
 		stepTv = (TextView) findViewById(R.id.textView1);
 		instructionTv = (TextView) findViewById(R.id.TextView01);
