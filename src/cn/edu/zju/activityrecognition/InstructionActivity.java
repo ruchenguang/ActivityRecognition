@@ -43,7 +43,7 @@ public class InstructionActivity extends Activity {
 					}
 					@Override
 					public void onAnimationEnd(Animation animation) {
-						Intent intent = new Intent(InstructionActivity.this, ConnectionActivity.class);
+						Intent intent = new Intent(InstructionActivity.this, MainActivity.class);
 						startActivity(intent);
 					}
 				});

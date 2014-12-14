@@ -41,7 +41,7 @@ public class ConnectionActivity extends Activity {
 							}
 							@Override
 							public void onAnimationEnd(Animation animation) {
-								Intent intent = new Intent(ConnectionActivity.this, MainActivity.class);
+								Intent intent = new Intent(ConnectionActivity.this, InstructionActivity.class);
 								startActivity(intent);
 							}
 						});

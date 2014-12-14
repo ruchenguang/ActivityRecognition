@@ -104,8 +104,7 @@ public class InformationActivity extends Activity {
 									getResources().getString(R.string.info_height_incomplete), 
 									Toast.LENGTH_SHORT).show();
 						else{
-							final Intent intent = new Intent(InformationActivity.this, InstructionActivity.class);
-							intent.putExtra(EXTRA_PATH, subjectDirPath);
+							final Intent intent = new Intent(InformationActivity.this, ConnectionActivity.class);
 							
 							if(isArchiveCreated){
 								Toast.makeText(InformationActivity.this, "Your information has been changed.", Toast.LENGTH_SHORT).show();
