@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,6 +43,8 @@ public class InformationActivity extends Activity {
 	final String EXTRA_PATH = "ActivityRecognition::SubjectDataPath";
 	
 	SharedPreferences sp;
+	
+	boolean isArchiveCreated = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -103,10 +104,29 @@ public class InformationActivity extends Activity {
 									getResources().getString(R.string.info_height_incomplete), 
 									Toast.LENGTH_SHORT).show();
 						else{
-							initSubject();
-							Intent intent = new Intent(InformationActivity.this, InstructionActivity.class);
+							final Intent intent = new Intent(InformationActivity.this, InstructionActivity.class);
 							intent.putExtra(EXTRA_PATH, subjectDirPath);
-							startActivity(intent);
+							
+							if(isArchiveCreated){
+								Toast.makeText(InformationActivity.this, "Your information has been changed.", Toast.LENGTH_SHORT).show();
+								createAchive();
+								startActivity(intent);
+							} else {
+								AlertDialog.Builder builder = new AlertDialog.Builder(InformationActivity.this);
+								builder.setCancelable(true);
+								builder.setTitle("Notice");
+								builder.setMessage("Your personal archive folder will be created after your pressing \"Okay\", " +
+										"and this archive folder will always be used for saving your information and data unless the app was killed.");
+								builder.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										isArchiveCreated = true;
+										createAchive();
+										startActivity(intent);
+									}
+								});
+								builder.create().show();
+							}
 						}
 					}
 				});
@@ -162,7 +182,7 @@ public class InformationActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 	
-	void initSubject(){
+	void createAchive(){
 		//create a folder for this subject with its ID
 		DecimalFormat df = new DecimalFormat("00000");
 		subjectDir = new File(activityRecognitionDir.getAbsoluteFile(), "subject_"+df.format(id));
