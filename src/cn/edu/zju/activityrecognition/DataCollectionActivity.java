@@ -13,19 +13,26 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.edu.zju.activityrecognition.MainActivity.HumanActivity;
 import cn.edu.zju.activityrecognition.MainActivity.Step;
+import cn.edu.zju.activityrecognition.tools.BluetoothService;
+import cn.edu.zju.activityrecognition.tools.LpmsBData;
 
-import android.R.integer;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -34,16 +41,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class DataCollectionActivity extends Activity {
+	public static final String TAG = "ActivityRecognition::DataColletion";
 	public static final int UNFINISHED = 0;
 	public static final int FINISHED = 1;
 	Button startButton, redoButton;
 	TextView currentTextView, nextTextView, next2TextView, pastTextView;
 	
 	int activityIndex = 0;
-	cn.edu.zju.activityrecognition.MainActivity.Activity activity;
-	
+	HumanActivity activity;
 	int stepIndex = 0;
-	ArrayList<MainActivity.Step> steps = new ArrayList<MainActivity.Step>();
+	ArrayList<Step> steps = new ArrayList<Step>();
 	
 	boolean isStarted = false;
 	boolean isPaused = false;
@@ -52,7 +59,6 @@ public class DataCollectionActivity extends Activity {
 	boolean isLastSecond = false;
 	
 	File activityDir;
-	File activityDataFile[];
 	FileOutputStream fos[] = null;
 	
 	Timer timer;
@@ -60,19 +66,36 @@ public class DataCollectionActivity extends Activity {
 	SoundPool soundPool;
 	int clickSoundId, beepSoundId;
 	
+	//sensors inside the phone
+	SensorManager sm;
+	Sensor accelerometer, gyroscope;
+	MySensorEventListener sensorListener;
+	float[] acceValues, gyroValues;
+	FileOutputStream[] phoneSensorsFos = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_data_collection);
 		
 		Intent intent = getIntent();
 		activityIndex = intent.getIntExtra(MainActivity.EXTRA_ACTIVITY, 0);
 		activity = MainActivity.activities.get(activityIndex);
 		
-		activityDir = new File(InformationActivity.subjectDirPath, activity.activity);
+		activityDir = new File(InformationActivity.subjectDirPath, activity.name);
 		
-		if(activity.activity.equals("climbingstairs"))
+		if(activity.name.equals("climbing_upstairs") || activity.name.equals("climbing_downstairs"))
 			isUserControl = true;
+		
+		//initiate the sensors inside the phone
+		sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		sensorListener = new MySensorEventListener();
+		sm.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
+		
 		//initiate the user interface for different activity
 		TextView instructionTextView = (TextView) findViewById(R.id.textView1);
 		instructionTextView.setText(activity.instruction);
@@ -146,12 +169,14 @@ public class DataCollectionActivity extends Activity {
 			}
 		});
 		
+		//prepare the sound pool, you know, the "click" and the "beep-beep"
 		soundPool = new SoundPool(3, AudioManager.STREAM_SYSTEM, 0);
 		clickSoundId = soundPool.load(this, R.raw.click, 1);
 		beepSoundId = soundPool.load(this, R.raw.beep, 0);
 		
 		prepareStartState();
 		
+		//if this activity is already finished
 		if(intent.getBooleanExtra(MainActivity.EXTRA_ACTIVITY_ISFINISHED, false)){
 			prepareFinishState();
 		}
@@ -179,6 +204,7 @@ public class DataCollectionActivity extends Activity {
 	
 	void destroy(){
 		timer.cancel();
+		sm.unregisterListener(sensorListener);
 		try {
 			if(fos != null)
 				for(int i=0; i<3; i++)
@@ -217,8 +243,8 @@ public class DataCollectionActivity extends Activity {
 		this.finish();
 	}
 	
+	//init file for saving data
 	void initDataFile(){
-		//init the data file
 		if(!activityDir.exists())
 			activityDir.mkdir();
 		String dataPath = activityDir.getAbsolutePath();
@@ -226,10 +252,12 @@ public class DataCollectionActivity extends Activity {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.getDefault()); 
 		String fileName = formatter.format(currentDate) + ".txt";
 		
-		activityDataFile = new File[3];
+		//init the data file for saving lpms-sensors data
+		File[] activityDataFile = new File[3];
 		activityDataFile[0] = new File(dataPath, "acc_" + fileName);
 		activityDataFile[1] = new File(dataPath, "gyr_" + fileName);
 		activityDataFile[2] = new File(dataPath, "mag_" + fileName);
+		
 		try {
 			fos = new FileOutputStream[3];
 			for(int i=0; i<3; i++)
@@ -237,6 +265,26 @@ public class DataCollectionActivity extends Activity {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		
+		//init the data file for saving sensors data inside the phone
+		File phoneSensorDataDir = new File(activityDir, "phone_sensors");
+		if(!phoneSensorDataDir.exists())
+			phoneSensorDataDir.mkdir();
+		String phoneSensorDataPath = phoneSensorDataDir.getAbsolutePath();
+		
+		File[] phoneSensorsDataFiles = new File[2];
+		phoneSensorsDataFiles[0] = new File(phoneSensorDataPath, "acc_" + fileName);
+		phoneSensorsDataFiles[1] = new File(phoneSensorDataPath, "gyr_" + fileName);
+		
+		try {
+			phoneSensorsFos = new FileOutputStream[2];
+			phoneSensorsFos[0] = new FileOutputStream(phoneSensorsDataFiles[0]);
+			phoneSensorsFos[1] = new FileOutputStream(phoneSensorsDataFiles[1]);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	void prepareStartState(){
@@ -324,9 +372,10 @@ public class DataCollectionActivity extends Activity {
 			@Override
 			public void run() {
 				if(isStarted && !isPaused && !isFinished){
-					DecimalFormat f0 = new DecimalFormat("+000.0000;-000.0000");
-					LpmsBData d = BluetoothService.getSensorData();
+					DecimalFormat f0 = new DecimalFormat("+000.00000;-000.00000");
 					try {
+						//collect data from lpms-b sensor
+						LpmsBData d = BluetoothService.getSensorData();
 						String accData = 
 								f0.format(d.acc[0]) + " " +
 								f0.format(d.acc[1]) + " " +
@@ -344,6 +393,19 @@ public class DataCollectionActivity extends Activity {
 								f0.format(d.mag[1]) + " " +
 								f0.format(d.mag[2]) + " ";
 						fos[2].write(magData.getBytes());
+						
+						//collect data from sensor inside the phone
+						String accString = 
+								f0.format(acceValues[0]) + " " +
+								f0.format(acceValues[1]) + " " +
+								f0.format(acceValues[2]) + " ";
+						phoneSensorsFos[0].write(accString.getBytes());
+						
+						String gyrString = 
+								f0.format(gyroValues[0]) + " " +
+								f0.format(gyroValues[1]) + " " +
+								f0.format(gyroValues[2]) + " ";
+						phoneSensorsFos[1].write(gyrString.getBytes());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -387,5 +449,19 @@ public class DataCollectionActivity extends Activity {
 			e.printStackTrace();
 		}
 
+	}
+
+	class MySensorEventListener implements SensorEventListener{
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+			Sensor sensor = event.sensor;
+			if(sensor.equals(accelerometer))
+				acceValues = event.values;
+			if(sensor.equals(gyroscope))
+				gyroValues = event.values;
+		}
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		}
 	}
 }

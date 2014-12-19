@@ -1,4 +1,4 @@
-package cn.edu.zju.activityrecognition;
+package cn.edu.zju.activityrecognition.tools;
 
 import java.util.ArrayList;
 import java.util.List;

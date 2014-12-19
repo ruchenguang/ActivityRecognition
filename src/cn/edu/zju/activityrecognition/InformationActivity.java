@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import cn.edu.zju.activityrecognition.tools.ExitApplication;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;

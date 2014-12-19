@@ -54,7 +54,7 @@
             android:theme="@android:style/Theme.Holo.Light" >
         </activity>
         <service
-            android:name=".BluetoothService">
+            android:name="cn.edu.zju.activityrecognition.tools.BluetoothService">
         </service>
     </application>
 

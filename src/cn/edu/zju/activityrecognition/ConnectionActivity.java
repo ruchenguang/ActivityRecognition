@@ -1,5 +1,7 @@
 package cn.edu.zju.activityrecognition;
 
+import cn.edu.zju.activityrecognition.tools.BluetoothService;
+import cn.edu.zju.activityrecognition.tools.ExitApplication;
 import android.R.color;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -24,7 +26,8 @@ public class ConnectionActivity extends Activity {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			if(action.equals(BluetoothService.ACTION_BT_CONNECTED) || BluetoothService.isDebug){
-				btnConnect.setText(R.string.connected);
+				if(BluetoothService.isDebug) btnConnect.setText(R.string.debug); 
+				else btnConnect.setText(R.string.connected); 
 				btnConnect.setTextColor(getResources().getColor(color.holo_blue_dark));
 				
 				btnNext.setTextColor(getResources().getColor(color.holo_blue_dark));

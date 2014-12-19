@@ -35,6 +35,6 @@
         android:layout_alignParentLeft="true"
         android:background="@android:drawable/alert_light_frame"
         android:text="@string/button_not_finished"
-        android:textColor="@android:color/holo_blue_dark" />
+        android:textColor="@android:color/darker_gray" />
 
 </RelativeLayout>

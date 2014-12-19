@@ -27,7 +27,7 @@
 ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***********************************************************************/
 
-package cn.edu.zju.activityrecognition;
+package cn.edu.zju.activityrecognition.tools;
 
 // Contains orientation data retrieved from LPMS-B
 public class LpmsBData {

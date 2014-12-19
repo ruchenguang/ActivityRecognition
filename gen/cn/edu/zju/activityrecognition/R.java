@@ -65,14 +65,15 @@ public final class R {
     public static final class string {
         public static final int app_name=0x7f070000;
         public static final int button_connect=0x7f070014;
-        public static final int button_finished=0x7f070026;
+        public static final int button_finished=0x7f070029;
         public static final int button_next=0x7f070002;
-        public static final int button_not_finished=0x7f070027;
-        public static final int climbing_downstairs=0x7f070020;
-        public static final int climbing_upstairs=0x7f07001f;
+        public static final int button_not_finished=0x7f07002a;
+        public static final int climbing_downstairs=0x7f070021;
+        public static final int climbing_upstairs=0x7f070020;
         public static final int connected=0x7f070016;
         public static final int connecting=0x7f070015;
         public static final int connection_failed=0x7f070017;
+        public static final int debug=0x7f070018;
         public static final int enter_info=0x7f070005;
         public static final int gender_female=0x7f070008;
         public static final int gender_male=0x7f070007;
@@ -82,51 +83,57 @@ public final class R {
         public static final int info_height=0x7f070009;
         public static final int info_height_incomplete=0x7f07000c;
         public static final int info_incomplete=0x7f07000b;
-        public static final int instruction_activity=0x7f070019;
-        public static final int instruction_activity_climbing_downstairs=0x7f070033;
-        public static final int instruction_activity_climbing_upstairs=0x7f070032;
-        public static final int instruction_activity_lying=0x7f07002f;
-        public static final int instruction_activity_relative_lying=0x7f070036;
-        public static final int instruction_activity_relative_sitting=0x7f070034;
-        public static final int instruction_activity_relative_standing=0x7f070035;
-        public static final int instruction_activity_running=0x7f070031;
-        public static final int instruction_activity_sitting=0x7f07002d;
-        public static final int instruction_activity_sitting_with_phone_in_pocket=0x7f070025;
-        public static final int instruction_activity_standing=0x7f07002e;
-        public static final int instruction_activity_walking=0x7f070030;
+        public static final int instruction_activity=0x7f07001a;
+        public static final int instruction_activity_climbing_downstairs=0x7f070036;
+        public static final int instruction_activity_climbing_upstairs=0x7f070035;
+        public static final int instruction_activity_lying=0x7f070032;
+        public static final int instruction_activity_pocket_lying=0x7f07003c;
+        public static final int instruction_activity_pocket_sitting=0x7f07003b;
+        public static final int instruction_activity_pocket_standing=0x7f07003a;
+        public static final int instruction_activity_pocket_walking=0x7f07003d;
+        public static final int instruction_activity_relative_lying=0x7f070039;
+        public static final int instruction_activity_relative_sitting=0x7f070037;
+        public static final int instruction_activity_relative_standing=0x7f070038;
+        public static final int instruction_activity_running=0x7f070034;
+        public static final int instruction_activity_sitting=0x7f070030;
+        public static final int instruction_activity_standing=0x7f070031;
+        public static final int instruction_activity_walking=0x7f070033;
         public static final int instruction_attach=0x7f07000f;
         public static final int instruction_connect=0x7f070013;
         public static final int instruction_image_discriptor=0x7f070010;
         public static final int instruction_poweron=0x7f070012;
-        public static final int lying=0x7f07001c;
-        public static final int message_exit_finished=0x7f07002a;
-        public static final int message_exit_not_finished=0x7f07002b;
-        public static final int relative_lying=0x7f070023;
-        public static final int relative_sitting=0x7f070021;
-        public static final int relative_standing=0x7f070022;
-        public static final int running=0x7f07001e;
-        public static final int sitting=0x7f07001a;
-        public static final int sitting_with_phone_in_pocket=0x7f070024;
-        public static final int standing=0x7f07001b;
+        public static final int lying=0x7f07001d;
+        public static final int lying_with_phone_in_pocket=0x7f070027;
+        public static final int message_exit_finished=0x7f07002d;
+        public static final int message_exit_not_finished=0x7f07002e;
+        public static final int relative_lying=0x7f070024;
+        public static final int relative_sitting=0x7f070022;
+        public static final int relative_standing=0x7f070023;
+        public static final int running=0x7f07001f;
+        public static final int sitting=0x7f07001b;
+        public static final int sitting_with_phone_in_pocket=0x7f070025;
+        public static final int standing=0x7f07001c;
+        public static final int standing_with_phone_in_pocket=0x7f070026;
         public static final int title_activity=0x7f070001;
         /**  For ConnectionActivity 
          */
         public static final int title_activity_connection=0x7f070011;
         /**  For DataColletionActivity 
          */
-        public static final int title_activity_data_collection=0x7f07002c;
+        public static final int title_activity_data_collection=0x7f07002f;
         /**  For MainActivity 
          */
-        public static final int title_activity_main=0x7f070018;
-        public static final int title_exit_finished=0x7f070028;
-        public static final int title_exit_not_finished=0x7f070029;
+        public static final int title_activity_main=0x7f070019;
+        public static final int title_exit_finished=0x7f07002b;
+        public static final int title_exit_not_finished=0x7f07002c;
         /**  For InformationActivity 
          */
         public static final int title_information_activity=0x7f070003;
         /**  For InstructionActivity 
          */
         public static final int title_instruction_activity=0x7f07000e;
-        public static final int walking=0x7f07001d;
+        public static final int walking=0x7f07001e;
+        public static final int walking_with_phone_in_pocket=0x7f070028;
         public static final int welcome_message=0x7f070004;
     }
     public static final class style {
