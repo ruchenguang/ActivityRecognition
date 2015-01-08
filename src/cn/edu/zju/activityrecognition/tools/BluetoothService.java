@@ -1,4 +1,4 @@
-package cn.edu.zju.activityrecognition;
+package cn.edu.zju.activityrecognition.tools;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.UUID;
+
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;

@@ -1,5 +1,6 @@
 package cn.edu.zju.activityrecognition;
 
+import cn.edu.zju.activityrecognition.tools.ExitApplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
