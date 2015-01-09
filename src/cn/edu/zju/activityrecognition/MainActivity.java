@@ -12,11 +12,15 @@ import cn.edu.zju.activityrecognition.tools.BluetoothService;
 import cn.edu.zju.activityrecognition.tools.ExitApplication;
 
 import android.app.*;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -29,12 +33,12 @@ import android.os.*;
 
 // Main activity. Connects to LPMS-B and displays orientation values
 public class MainActivity extends android.app.Activity{
-	public static final String TAG = "ActivityRecognition::MainActivity";
+	public static final String TAG = "AR::Main";
 	public static final String EXTRA_ACTIVITY = "MainActivity::extra_activity";	
 	public static final String EXTRA_ACTIVITY_ISFINISHED = "MainActivity::extra_activity_isfinshed";	
 	public static final String BUNDLE_FINISHED_ACTIVITIES = "MainActivity::bundle_finished_activities";
 	public static final byte ASK_CODE_ZERO = 48;
-	
+
 	public static ArrayList<HumanActivity> activities;
 	public static ArrayList<String> activityTitles;
 	public static int activityNum; 
@@ -45,16 +49,46 @@ public class MainActivity extends android.app.Activity{
 	int finishedActivities = 0;
 	boolean isAllFinished = false;
 	
+	//flag showing the bluetooth connetion between the phoen and LPMS sensor
+	boolean isConnected = true; 
+	
 	ListView listView;
 	TextView tv;
 	Button finishButton;
-
+	MenuItem actionConnected, actionNotConnected, actionConnecting; 
+	BroadcastReceiver bluetoothStateReceiver;
+	
 	@Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);	
+        
+        //exit activity list, used to kill all the activities
         ExitApplication.activityList.add(this);
+        
+        //get the connection state
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothService.ACTION_BT_CONNECTED);
+        intentFilter.addAction(BluetoothService.ACTION_BT_NOT_CONNECTED);
+        bluetoothStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				if(action.equals(BluetoothService.ACTION_BT_CONNECTED)){
+		            actionConnected.setVisible(true);
+		            actionNotConnected.setVisible(false);
+		            Toast.makeText(MainActivity.this, "Device is connected again", Toast.LENGTH_SHORT).show();
+				}
+				else if(action.equals(BluetoothService.ACTION_BT_NOT_CONNECTED)){
+		            actionConnected.setVisible(false);
+		            actionNotConnected.setVisible(true);
+					Toast.makeText(MainActivity.this, "Warning! Device is not connected anymore", Toast.LENGTH_SHORT).show();
+				}
+				actionConnecting.setVisible(false);
+			}
+		};
+        registerReceiver(bluetoothStateReceiver, intentFilter);
         
         //initiate activities' title and number
         activities = getActivities();
@@ -121,6 +155,42 @@ public class MainActivity extends android.app.Activity{
 		});
     }
     
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.action_connection, menu);
+		actionConnected = menu.findItem(R.id.action_connected);
+		actionNotConnected = menu.findItem(R.id.action_not_connected);
+		actionConnecting = menu.findItem(R.id.action_connecting);
+        if (BluetoothService.isConnected) {
+            actionConnected.setVisible(true);
+            actionNotConnected.setVisible(false);
+        } else {
+        	actionConnected.setVisible(false);
+        	actionNotConnected.setVisible(true);
+        }
+        actionConnecting.setVisible(false);
+        
+        menu.findItem(R.id.action_settings).setEnabled(false);
+		return super.onCreateOptionsMenu(menu);
+	};
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(actionNotConnected.equals(item)){
+			//change the actions on the action bar, from not-connected to connecting
+			actionConnected.setVisible(false);
+			actionNotConnected.setVisible(false);
+			actionConnecting.setVisible(true);
+			Toast.makeText(this, "Connecting the device, please wait.", Toast.LENGTH_SHORT).show();
+			
+			//stop the old service and start a new one 
+			Intent serviceIntent = new Intent(this, BluetoothService.class);
+			stopService(serviceIntent);
+			startService(serviceIntent);
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
     @Override
     protected void onResume() {
         activityCompletionStateFile = new File(InformationActivity.subjectDirPath, "activityCompletionState.txt");
@@ -181,6 +251,16 @@ public class MainActivity extends android.app.Activity{
         adapter.notifyDataSetChanged();
     	super.onResume();
     }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	
+    	unregisterReceiver(bluetoothStateReceiver);
+    	
+    	Intent serviceIntent = new Intent(this, BluetoothService.class);
+    	Log.d(TAG, "Stop BluetoothService: " + stopService(serviceIntent));
+    };
     
     ArrayList<HumanActivity> getActivities(){
     	ArrayList<HumanActivity> activities = new ArrayList<HumanActivity>();
@@ -392,7 +472,6 @@ public class MainActivity extends android.app.Activity{
 		Context context;
 		LayoutInflater inflater;
 		ArrayList<HumanActivity> activities;
-		
 		
 		public ActivityAdapter(Context context, ArrayList<HumanActivity> activities) {
 			this.context = context;

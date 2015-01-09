@@ -60,7 +60,7 @@
     <string name="title_exit_not_finished">Notice!</string>
     <string name="message_exit_finished">You have helped finishing all the activities! Thanks again for participating. Do you want to leave now?</string>
     <string name="message_exit_not_finished">You have not finished all the activities yet. None of the data will be saved. Are you sure you want to exist? </string>
-    
+    	
     <!-- For DataColletionActivity -->
     <string name="title_activity_data_collection">Let\'s collect data</string>
     
@@ -85,4 +85,12 @@
     <string name="instruction_activity_pocket_walking" >Press start button, 
         then put the phone in your pants left/right pocket. Keep walking until beep rings.</string>
     
+    
+   	<!-- For the Action Bar -->
+   	<string name="action_connected">Connected</string>
+   	<string name="action_not_connected">Reconnect</string>
+   	<string name="action_connecting">Connecting</string>
+   	
+   	<string name="action_settings">Settings</string>
+   	
 </resources>

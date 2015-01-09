@@ -20,7 +20,6 @@ import cn.edu.zju.activityrecognition.tools.LpmsBData;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Notification.Action;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +36,8 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -57,6 +58,7 @@ public class DataCollectionActivity extends Activity {
 	
 	Button startButton, redoButton;
 	TextView currentTextView, nextTextView, next2TextView, pastTextView;
+	MenuItem actionConnected, actionNotConnected, actionConnecting; 
 	
 	int activityIndex = 0;
 	HumanActivity activity;
@@ -86,14 +88,36 @@ public class DataCollectionActivity extends Activity {
 	float[] acceValues, gyroValues;
 	FileOutputStream[] phoneSensorsFos = null;
 	
+	BroadcastReceiver bluetoothStateReceiver; 
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		setContentView(R.layout.activity_data_collection);
-		
-		//keep the screen on
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        //get the connection state
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothService.ACTION_BT_CONNECTED);
+        intentFilter.addAction(BluetoothService.ACTION_BT_NOT_CONNECTED);
+        bluetoothStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				if(action.equals(BluetoothService.ACTION_BT_CONNECTED)){
+		            actionConnected.setVisible(true);
+		            actionNotConnected.setVisible(false);
+		            Toast.makeText(DataCollectionActivity.this, "Device is connected again", Toast.LENGTH_SHORT).show();
+				}
+				else if(action.equals(BluetoothService.ACTION_BT_NOT_CONNECTED)){
+		            actionConnected.setVisible(false);
+		            actionNotConnected.setVisible(true);
+					Toast.makeText(DataCollectionActivity.this, "Warning! Device is not connected anymore", Toast.LENGTH_SHORT).show();
+				}
+				actionConnecting.setVisible(false);
+			}
+		};
+        registerReceiver(bluetoothStateReceiver, intentFilter);
 		
 		//register a recivier for receiving screen on and off intent
         IntentFilter homeFilter = new IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
@@ -208,6 +232,42 @@ public class DataCollectionActivity extends Activity {
 		wakeLock.acquire();
 	}
 	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.action_connection, menu);
+		actionConnected = menu.findItem(R.id.action_connected);
+		actionNotConnected = menu.findItem(R.id.action_not_connected);
+		actionConnecting = menu.findItem(R.id.action_connecting);
+        if (BluetoothService.isConnected) {
+            actionConnected.setVisible(true);
+            actionNotConnected.setVisible(false);
+        } else {
+        	actionConnected.setVisible(false);
+        	actionNotConnected.setVisible(true);
+        }
+        actionConnecting.setVisible(false);
+        
+        menu.findItem(R.id.action_settings).setEnabled(false);
+		return super.onCreateOptionsMenu(menu);
+	};
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(actionNotConnected.equals(item)){
+			//change the actions on the action bar, from not-connected to connecting
+			actionConnected.setVisible(false);
+			actionNotConnected.setVisible(false);
+			actionConnecting.setVisible(true);
+			Toast.makeText(this, "Connecting the device, please wait.", Toast.LENGTH_SHORT).show();
+			
+			//stop the old service and start a new one 
+			Intent serviceIntent = new Intent(this, BluetoothService.class);
+			stopService(serviceIntent);
+			startService(serviceIntent);
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
 	// Called when activity is paused or screen orientation changes
     @SuppressLint("Wakelock") @Override
     protected void onDestroy() {
@@ -220,6 +280,7 @@ public class DataCollectionActivity extends Activity {
 		}
 		soundPool.release();
 		wakeLock.release();
+		unregisterReceiver(bluetoothStateReceiver);
     }
 	
 	void destroy(){
@@ -396,6 +457,18 @@ public class DataCollectionActivity extends Activity {
 					try {
 						//collect data from lpms-b sensor
 						LpmsBData d = BluetoothService.getSensorData();
+						//Check the data correctness. With all zeros, there must be problems
+						if (d.acc[0]==0 && d.acc[1]==0 && d.acc[2]==0 &&
+								d.gyr[0]==0 && d.gyr[1]==0 && d.gyr[2]==0 &&
+								d.mag[0]==0 && d.mag[1]==0 && d.mag[2]==0 &&
+								!BluetoothService.isDebug) {
+							startButton.setText("Continue");
+							isPaused = true;
+							Toast.makeText(DataCollectionActivity.this, 
+									"Too many 0s was received. Please check the Bluetooth connection!",  
+									Toast.LENGTH_SHORT).show();
+						}
+						
 						String accData = 
 								f0.format(d.acc[0]) + " " +
 								f0.format(d.acc[1]) + " " +

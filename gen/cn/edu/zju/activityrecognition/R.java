@@ -34,21 +34,25 @@ public final class R {
         public static final int walking=0x7f02000b;
     }
     public static final class id {
-        public static final int Button02=0x7f090003;
-        public static final int RadioButton01=0x7f09000b;
-        public static final int TextView01=0x7f090007;
-        public static final int TextView02=0x7f090006;
-        public static final int TextView03=0x7f090005;
-        public static final int TextView04=0x7f090009;
-        public static final int button1=0x7f09000e;
-        public static final int button2=0x7f090004;
-        public static final int buttonNext=0x7f090002;
-        public static final int editText1=0x7f09000c;
-        public static final int imageView1=0x7f090008;
-        public static final int listView1=0x7f09000d;
-        public static final int radioButton1=0x7f09000a;
-        public static final int textView1=0x7f090000;
-        public static final int textView2=0x7f090001;
+        public static final int Button02=0x7f0a0003;
+        public static final int RadioButton01=0x7f0a000b;
+        public static final int TextView01=0x7f0a0007;
+        public static final int TextView02=0x7f0a0006;
+        public static final int TextView03=0x7f0a0005;
+        public static final int TextView04=0x7f0a0009;
+        public static final int action_connected=0x7f0a0010;
+        public static final int action_connecting=0x7f0a0012;
+        public static final int action_not_connected=0x7f0a0011;
+        public static final int action_settings=0x7f0a000f;
+        public static final int button1=0x7f0a000e;
+        public static final int button2=0x7f0a0004;
+        public static final int buttonNext=0x7f0a0002;
+        public static final int editText1=0x7f0a000c;
+        public static final int imageView1=0x7f0a0008;
+        public static final int listView1=0x7f0a000d;
+        public static final int radioButton1=0x7f0a000a;
+        public static final int textView1=0x7f0a0000;
+        public static final int textView2=0x7f0a0001;
     }
     public static final class layout {
         public static final int activity_connection=0x7f030000;
@@ -58,11 +62,20 @@ public final class R {
         public static final int activity_main=0x7f030004;
         public static final int listview_string=0x7f030005;
     }
+    public static final class menu {
+        public static final int action_connection=0x7f090000;
+    }
     public static final class raw {
         public static final int beep=0x7f050000;
         public static final int click=0x7f050001;
     }
     public static final class string {
+        /**  For the Action Bar 
+         */
+        public static final int action_connected=0x7f07003e;
+        public static final int action_connecting=0x7f070040;
+        public static final int action_not_connected=0x7f07003f;
+        public static final int action_settings=0x7f070041;
         public static final int app_name=0x7f070000;
         public static final int button_connect=0x7f070014;
         public static final int button_finished=0x7f070029;
