@@ -24,6 +24,7 @@ public class ConnectionActivity extends Activity {
 	Intent serviceIntent;
 	
 	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+		@SuppressWarnings("unused")
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();

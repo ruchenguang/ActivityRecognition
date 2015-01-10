@@ -89,6 +89,7 @@ public class DataCollectionActivity extends Activity {
 	FileOutputStream[] phoneSensorsFos = null;
 	
 	BroadcastReceiver bluetoothStateReceiver; 
+	boolean isReceivingZeros;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +157,7 @@ public class DataCollectionActivity extends Activity {
 		startButton = (Button) findViewById(R.id.button2);
 		redoButton = (Button) findViewById(R.id.buttonNext);
 		startButton.setOnClickListener(new OnClickListener() {
+			@SuppressWarnings("unused")
 			@Override
 			public void onClick(View v) {
 				Animation animation = AnimationUtils.loadAnimation(DataCollectionActivity.this, R.anim.button_scale);			
@@ -450,6 +452,7 @@ public class DataCollectionActivity extends Activity {
 			}
 		};
 		dataCollector = new TimerTask() {
+			@SuppressWarnings("unused")
 			@Override
 			public void run() {
 				if(isStarted && !isPaused && !isFinished){
@@ -458,16 +461,27 @@ public class DataCollectionActivity extends Activity {
 						//collect data from lpms-b sensor
 						LpmsBData d = BluetoothService.getSensorData();
 						//Check the data correctness. With all zeros, there must be problems
-						if (d.acc[0]==0 && d.acc[1]==0 && d.acc[2]==0 &&
-								d.gyr[0]==0 && d.gyr[1]==0 && d.gyr[2]==0 &&
-								d.mag[0]==0 && d.mag[1]==0 && d.mag[2]==0 &&
-								!BluetoothService.isDebug) {
-							startButton.setText("Continue");
-							isPaused = true;
-							Toast.makeText(DataCollectionActivity.this, 
-									"Too many 0s was received. Please check the Bluetooth connection!",  
-									Toast.LENGTH_SHORT).show();
-						}
+						if (d.acc[0]==0 && d.acc[1]==0 && d.acc[2]==0
+								&& d.gyr[0]==0 && d.gyr[1]==0 && d.gyr[2]==0
+								&& d.mag[0]==0 && d.mag[1]==0 && d.mag[2]==0 
+								&& !BluetoothService.isDebug) {
+							if(!isReceivingZeros) isReceivingZeros = true;
+							else{
+								isReceivingZeros = false;
+								Handler viewHandler = new Handler(Looper.getMainLooper());
+								viewHandler.post(new Runnable() {
+									@Override
+									public void run() {
+										startButton.setText("Continue");
+										Toast.makeText(DataCollectionActivity.this, 
+												"Too many 0s was received. Please check the Bluetooth connection!",  
+												Toast.LENGTH_SHORT).show();
+									}
+								});
+								isPaused = true;
+							}
+						} else 
+							isReceivingZeros = false;
 						
 						String accData = 
 								f0.format(d.acc[0]) + " " +
