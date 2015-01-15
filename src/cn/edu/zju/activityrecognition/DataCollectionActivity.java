@@ -383,15 +383,20 @@ public class DataCollectionActivity extends Activity {
 		steps = activity.getSteps();
 		pastTextView.setText(" ");
 		Step currentStep = steps.get(stepIndex);
-		currentTextView.setText(currentStep.stepDescription + " for " + currentStep.time + "s");
+		if(currentStep.time == 0) currentTextView.setText(currentStep.stepDescription);
+		else currentTextView.setText(currentStep.stepDescription + " " + currentStep.time + "s");
 		if(steps.size()>(stepIndex+1)){
 			Step nextStep = steps.get(stepIndex+1);
-			nextTextView.setText(nextStep.stepDescription + " for " + nextStep.time + "s");
-		} else nextTextView.setText(" ");
+			if(nextStep.time == 0) nextTextView.setText(nextStep.stepDescription);
+			else nextTextView.setText(nextStep.stepDescription + " " + nextStep.time + "s");
+		} 
+		else nextTextView.setText(" ");
 		if(steps.size()>(stepIndex+2)){
 			Step next2Step = steps.get(stepIndex+2);
-			next2TextView.setText(next2Step.stepDescription + " for " + next2Step.time + "s");
-		} else next2TextView.setText(" ");
+			if(next2Step.time == 0) next2TextView.setText(next2Step.stepDescription);
+			else next2TextView.setText(next2Step.stepDescription + " " + next2Step.time + "s");
+		} 
+		else next2TextView.setText(" ");
 
 		//define the timer and timetasks
 		timer = new Timer();
@@ -409,23 +414,23 @@ public class DataCollectionActivity extends Activity {
 							//update past step
 							if(stepIndex>0) 
 								pastTextView.setText(
-										steps.get(stepIndex-1).stepDescription + " for " + 
+										steps.get(stepIndex-1).stepDescription + " " + 
 										steps.get(stepIndex-1).time + "s");
 							//update current step
 							currentTextView.setText(
-									steps.get(stepIndex).stepDescription + " for " + 
+									steps.get(stepIndex).stepDescription + " " + 
 									steps.get(stepIndex).time + "s");
 							//update next step
 							if((stepIndex+1)<steps.size()) 
 								nextTextView.setText(
-										steps.get(stepIndex+1).stepDescription + " for " + 
+										steps.get(stepIndex+1).stepDescription + " " + 
 										steps.get(stepIndex+1).time + "s");
 							else 
 								nextTextView.setText(" ");
 							//update next 2 step
 							if((stepIndex+2)<steps.size())
 								next2TextView.setText(
-										steps.get(stepIndex+2).stepDescription + " for " + 
+										steps.get(stepIndex+2).stepDescription + " " + 
 										steps.get(stepIndex+2).time + "s");
 							else 
 								next2TextView.setText(" ");

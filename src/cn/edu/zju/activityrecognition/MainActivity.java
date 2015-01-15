@@ -270,7 +270,9 @@ public class MainActivity extends android.app.Activity{
     	//********************simple activity********************
     	//sitting
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Sit straight", 60));
+    	steps.add(new Step("Sit with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then sit back in", 10));
+    	steps.add(new Step("Keep sitting until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"sitting", 
     			R.string.sitting, 
@@ -279,7 +281,9 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//standing
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Stand still", 60));
+    	steps.add(new Step("Stand with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then stand back in", 10));
+    	steps.add(new Step("Keep standing until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"standing", 
     			R.string.standing,
@@ -288,7 +292,9 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//lying
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Lying down", 60));
+    	steps.add(new Step("Lay down with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then lay back in", 10));
+    	steps.add(new Step("Keep lying until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"lying", 
     			R.string.lying,
@@ -297,7 +303,9 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//walking
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Walking", 120));
+    	steps.add(new Step("Walk with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then back walk in", 10));
+    	steps.add(new Step("Keep walking until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"walking", 
     			R.string.walking,
@@ -306,7 +314,7 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//running
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Runnning", 120));
+    	steps.add(new Step("Run with phone in hand for", 120));
     	activities.add(new HumanActivity(
     			"running", 
     			R.string.running,
@@ -315,7 +323,7 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//climbing upstairs
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Climbing Upstairs", 0));
+    	steps.add(new Step("Climb Upstairs after pressing start with phone in hand", 0));
     	activities.add(new HumanActivity(
     			"climbing_upstairs", 
     			R.string.climbing_upstairs,
@@ -323,9 +331,18 @@ public class MainActivity extends android.app.Activity{
     			R.drawable.climbing,
     			steps
     	));
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Press start, put the phone in pocket and then climb upstairs", 0));
+    	activities.add(new HumanActivity(
+    			"climbing_upstairs", 
+    			R.string.climbing_upstairs_pocket,
+    			R.string.instruction_activity_climbing_upstairs_pocket,
+    			R.drawable.climbing,
+    			steps
+    	));
     	//climbing downstairs
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Climbing Downstairs", 0));
+    	steps.add(new Step("Climb Downstairs after pressing start with phone in hand", 0));
     	activities.add(new HumanActivity(
     			"climbing_downstairs", 
     			R.string.climbing_downstairs,
@@ -333,20 +350,29 @@ public class MainActivity extends android.app.Activity{
     			R.drawable.climbing,
     			steps
     	));
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Press start, put the phone in pocket and then climb downstairs", 0));
+    	activities.add(new HumanActivity(
+    			"climbing_downstairs", 
+    			R.string.climbing_downstairs_pocket,
+    			R.string.instruction_activity_climbing_downstairs_pocket,
+    			R.drawable.climbing,
+    			steps
+    	));
     	
     	//********************relative ********************
     	//relative sitting
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Sit straight", 15));
-    	steps.add(new Step("Lean forward", 5));
-    	steps.add(new Step("Sit back straight", 5));
-    	steps.add(new Step("Lean backward", 5));
-    	steps.add(new Step("Sit back straight", 5));
-    	steps.add(new Step("Rotate trunk to right", 5));
-    	steps.add(new Step("Rotate back to straight", 5));
-    	steps.add(new Step("Rotate trunk to left", 5));
-    	steps.add(new Step("Rotate back to straight", 5));
-    	steps.add(new Step("Stand up", 5));
+    	steps.add(new Step("Sit straight for", 15));
+    	steps.add(new Step("Lean forward for", 5));
+    	steps.add(new Step("Sit back straight for", 5));
+    	steps.add(new Step("Lean backward for", 5));
+    	steps.add(new Step("Sit back straight for", 5));
+    	steps.add(new Step("Rotate trunk to right for", 5));
+    	steps.add(new Step("Rotate back to straight for", 5));
+    	steps.add(new Step("Rotate trunk to left for", 5));
+    	steps.add(new Step("Rotate back to straight for", 5));
+    	steps.add(new Step("Stand up for", 5));
     	activities.add(new HumanActivity(
     			"relative_sitting", 
     			R.string.relative_sitting,
@@ -355,14 +381,14 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//relative standing
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Stand still", 15));
-    	steps.add(new Step("Rotate trunk to right", 5));
-    	steps.add(new Step("Rotate back to the front", 5));
-    	steps.add(new Step("Rotate trunk to left", 5));
-    	steps.add(new Step("Rotate back to the front", 5));
-    	steps.add(new Step("Move up and down left arm", 5));
-    	steps.add(new Step("Stand still", 5));
-    	steps.add(new Step("Move up and down right arm", 5));
+    	steps.add(new Step("Stand still for", 15));
+    	steps.add(new Step("Rotate trunk to right for", 5));
+    	steps.add(new Step("Rotate back to the front for", 5));
+    	steps.add(new Step("Rotate trunk to left for", 5));
+    	steps.add(new Step("Rotate back to the front for", 5));
+    	steps.add(new Step("Move up and down left arm for", 5));
+    	steps.add(new Step("Stand still for", 5));
+    	steps.add(new Step("Move up and down right arm for", 5));
     	steps.add(new Step("Stand still", 5));
     	activities.add(new HumanActivity(
     			"relative_standing", 
@@ -372,12 +398,12 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//relative lying
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Lying with face up", 15));
+    	steps.add(new Step("Lying with face up for", 15));
     	steps.add(new Step("Turn to left", 5));
-    	steps.add(new Step("Lying back with face up", 5));
-    	steps.add(new Step("Turn to right", 5));
-    	steps.add(new Step("Lying back with face up", 5));
-    	steps.add(new Step("Sit up", 5));
+    	steps.add(new Step("Lying back with face up for", 5));
+    	steps.add(new Step("Turn to right for", 5));
+    	steps.add(new Step("Lying back with face up for", 5));
+    	steps.add(new Step("Sit up for", 5));
     	activities.add(new HumanActivity(
     			"relative_lying", 
     			R.string.relative_lying,
@@ -386,47 +412,47 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	
     	//********************phone in pocket ********************
-    	//sitting with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
-    	steps.add(new Step("Keep sitting straight", 60));
-    	activities.add(new HumanActivity(
-    			"sitting_with_phone_in_pocket", 
-    			R.string.sitting_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_sitting,
-    			R.drawable.sitting,
-    			steps));
-    	//standing with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then stand", 10));
-    	steps.add(new Step("Keep standing", 60));
-    	activities.add(new HumanActivity(
-    			"standding_with_phone_in_pocket", 
-    			R.string.standing_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_standing,
-    			R.drawable.standing,
-    			steps));
-    	//sitting with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
-    	steps.add(new Step("Keep sitting straight", 60));
-    	activities.add(new HumanActivity(
-    			"lying_with_phone_in_pocket", 
-    			R.string.lying_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_lying,
-    			R.drawable.lying,
-    			steps));
-    	//sitting with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
-    	steps.add(new Step("Keep sitting straight", 60));
-    	activities.add(new HumanActivity(
-    			"walking_with_phone_in_pocket", 
-    			R.string.walking_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_walking,
-    			R.drawable.walking,
-    			steps));
-    	
+//    	//sitting with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
+//    	steps.add(new Step("Keep sitting straight", 60));
+//    	activities.add(new HumanActivity(
+//    			"sitting_with_phone_in_pocket", 
+//    			R.string.sitting_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_sitting,
+//    			R.drawable.sitting,
+//    			steps));
+//    	//standing with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then stand", 10));
+//    	steps.add(new Step("Keep standing", 60));
+//    	activities.add(new HumanActivity(
+//    			"standding_with_phone_in_pocket", 
+//    			R.string.standing_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_standing,
+//    			R.drawable.standing,
+//    			steps));
+//    	//lying with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then lay down", 10));
+//    	steps.add(new Step("Keep lying", 60));
+//    	activities.add(new HumanActivity(
+//    			"lying_with_phone_in_pocket", 
+//    			R.string.lying_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_lying,
+//    			R.drawable.lying,
+//    			steps));
+//    	//walking with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then start walking", 10));
+//    	steps.add(new Step("Keep walking", 60));
+//    	activities.add(new HumanActivity(
+//    			"walking_with_phone_in_pocket", 
+//    			R.string.walking_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_walking,
+//    			R.drawable.walking,
+//    			steps));
+//    	
     	return activities;
     }
     
