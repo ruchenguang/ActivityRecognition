@@ -136,10 +136,10 @@ public class DataCollectionActivity extends Activity {
 		
 		//initiate the sensors inside the phone
 		sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		sensorListener = new MySensorEventListener();
+		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sm.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
 		
 		//initiate the user interface for different activity
