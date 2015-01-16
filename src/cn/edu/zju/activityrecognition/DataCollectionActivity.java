@@ -83,7 +83,7 @@ public class DataCollectionActivity extends Activity {
 	//sensors inside the phone
 	SensorManager sm;
 	Sensor accelerometer;
-	//Sensor gyroscope;
+	Sensor gyroscope;
 	MySensorEventListener sensorListener;
 	float[] acceValues, gyroValues;
 	FileOutputStream[] phoneSensorsFos = null;
@@ -140,8 +140,8 @@ public class DataCollectionActivity extends Activity {
 		sensorListener = new MySensorEventListener();
 		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sm.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-//		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-//		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
+		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
 		
 		//initiate the user interface for different activity
 		TextView instructionTextView = (TextView) findViewById(R.id.textView1);
@@ -357,7 +357,7 @@ public class DataCollectionActivity extends Activity {
 		
 		File[] phoneSensorsDataFiles = new File[2];
 		phoneSensorsDataFiles[0] = new File(phoneSensorDataPath, "acc_" + fileName);
-//		phoneSensorsDataFiles[1] = new File(phoneSensorDataPath, "gyr_" + fileName);
+		phoneSensorsDataFiles[1] = new File(phoneSensorDataPath, "gyr_" + fileName);
 		
 		try {
 			phoneSensorsFos = new FileOutputStream[2];
@@ -567,10 +567,11 @@ public class DataCollectionActivity extends Activity {
 		@Override
 		public void onSensorChanged(SensorEvent event) {
 			Sensor sensor = event.sensor;
+			Log.d(TAG, "Get data from sensor: " + sensor.getName());
 			if(sensor.equals(accelerometer))
 				acceValues = event.values;
-//			if(sensor.equals(gyroscope))
-//				gyroValues = event.values;
+			else if(sensor.equals(gyroscope))
+				gyroValues = event.values;
 		}
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
