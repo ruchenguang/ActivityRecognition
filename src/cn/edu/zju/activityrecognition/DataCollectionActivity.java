@@ -136,11 +136,12 @@ public class DataCollectionActivity extends Activity {
 		
 		//initiate the sensors inside the phone
 		sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		sensorListener = new MySensorEventListener();
+		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		sm.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
+		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		if(gyroscope != null)
+			sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
 		
 		//initiate the user interface for different activity
 		TextView instructionTextView = (TextView) findViewById(R.id.textView1);
@@ -156,7 +157,6 @@ public class DataCollectionActivity extends Activity {
 		startButton = (Button) findViewById(R.id.button2);
 		redoButton = (Button) findViewById(R.id.buttonNext);
 		startButton.setOnClickListener(new OnClickListener() {
-			@SuppressWarnings("unused")
 			@Override
 			public void onClick(View v) {
 				Animation animation = AnimationUtils.loadAnimation(DataCollectionActivity.this, R.anim.button_scale);			
@@ -456,7 +456,6 @@ public class DataCollectionActivity extends Activity {
 			}
 		};
 		dataCollector = new TimerTask() {
-			@SuppressWarnings("unused")
 			@Override
 			public void run() {
 				if(isStarted && !isPaused && !isFinished){
@@ -512,11 +511,13 @@ public class DataCollectionActivity extends Activity {
 								f0.format(acceValues[2]) + " ";
 						phoneSensorsFos[0].write(accString.getBytes());
 						
-						String gyrString = 
+						if(gyroscope != null){
+							String gyrString = 
 								f0.format(gyroValues[0]) + " " +
 								f0.format(gyroValues[1]) + " " +
 								f0.format(gyroValues[2]) + " ";
-						phoneSensorsFos[1].write(gyrString.getBytes());
+							phoneSensorsFos[1].write(gyrString.getBytes());
+						}
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
