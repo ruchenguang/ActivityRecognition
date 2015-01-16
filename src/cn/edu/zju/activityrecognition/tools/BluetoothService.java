@@ -28,7 +28,7 @@ public class BluetoothService extends Service {
 	BluetoothAdapter adapter;
 	static LpmsBThread lpThread;
 	
-	public static final boolean isDebug = true;
+	public static final boolean isDebug = false;
 	public static boolean isConnected = false;
 	
 	@Override
@@ -152,6 +152,7 @@ public class BluetoothService extends Service {
 			mAddress = address;
 			imuId = id;
 			
+			//intent to send with bluetooth connection info, like connected or not
 			Intent intent = new Intent();
 			intent.setAction(ACTION_BT_NOT_CONNECTED);
 			
@@ -236,6 +237,11 @@ public class BluetoothService extends Service {
 					// Parses received LpBus data
 					parse();
 				}
+				
+				//while loop is interrupted, which means the device is disconnected
+				Intent intent = new Intent();
+				intent.setAction(ACTION_BT_NOT_CONNECTED);
+				stopSelf();
 			}
 		}	
 		
@@ -259,7 +265,6 @@ public class BluetoothService extends Service {
 							Thread.sleep(10);
 							++timeout;
 						} 
-				
 					}
 				} catch (Exception e) {
 					Log.d(TAG, "[LpmsBThread] Connection interrupted");

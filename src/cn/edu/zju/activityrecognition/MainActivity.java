@@ -12,11 +12,15 @@ import cn.edu.zju.activityrecognition.tools.BluetoothService;
 import cn.edu.zju.activityrecognition.tools.ExitApplication;
 
 import android.app.*;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -29,12 +33,12 @@ import android.os.*;
 
 // Main activity. Connects to LPMS-B and displays orientation values
 public class MainActivity extends android.app.Activity{
-	public static final String TAG = "ActivityRecognition::MainActivity";
+	public static final String TAG = "AR::Main";
 	public static final String EXTRA_ACTIVITY = "MainActivity::extra_activity";	
 	public static final String EXTRA_ACTIVITY_ISFINISHED = "MainActivity::extra_activity_isfinshed";	
 	public static final String BUNDLE_FINISHED_ACTIVITIES = "MainActivity::bundle_finished_activities";
 	public static final byte ASK_CODE_ZERO = 48;
-	
+
 	public static ArrayList<HumanActivity> activities;
 	public static ArrayList<String> activityTitles;
 	public static int activityNum; 
@@ -45,16 +49,46 @@ public class MainActivity extends android.app.Activity{
 	int finishedActivities = 0;
 	boolean isAllFinished = false;
 	
+	//flag showing the bluetooth connetion between the phoen and LPMS sensor
+	boolean isConnected = true; 
+	
 	ListView listView;
 	TextView tv;
 	Button finishButton;
-
+	MenuItem actionConnected, actionNotConnected, actionConnecting; 
+	BroadcastReceiver bluetoothStateReceiver;
+	
 	@Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);	
+        
+        //exit activity list, used to kill all the activities
         ExitApplication.activityList.add(this);
+        
+        //get the connection state
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothService.ACTION_BT_CONNECTED);
+        intentFilter.addAction(BluetoothService.ACTION_BT_NOT_CONNECTED);
+        bluetoothStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+				if(action.equals(BluetoothService.ACTION_BT_CONNECTED)){
+		            actionConnected.setVisible(true);
+		            actionNotConnected.setVisible(false);
+		            Toast.makeText(MainActivity.this, "Device is connected again", Toast.LENGTH_SHORT).show();
+				}
+				else if(action.equals(BluetoothService.ACTION_BT_NOT_CONNECTED)){
+		            actionConnected.setVisible(false);
+		            actionNotConnected.setVisible(true);
+					Toast.makeText(MainActivity.this, "Warning! Device is not connected anymore", Toast.LENGTH_SHORT).show();
+				}
+				actionConnecting.setVisible(false);
+			}
+		};
+        registerReceiver(bluetoothStateReceiver, intentFilter);
         
         //initiate activities' title and number
         activities = getActivities();
@@ -121,6 +155,42 @@ public class MainActivity extends android.app.Activity{
 		});
     }
     
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.action_connection, menu);
+		actionConnected = menu.findItem(R.id.action_connected);
+		actionNotConnected = menu.findItem(R.id.action_not_connected);
+		actionConnecting = menu.findItem(R.id.action_connecting);
+        if (BluetoothService.isConnected) {
+            actionConnected.setVisible(true);
+            actionNotConnected.setVisible(false);
+        } else {
+        	actionConnected.setVisible(false);
+        	actionNotConnected.setVisible(true);
+        }
+        actionConnecting.setVisible(false);
+        
+        menu.findItem(R.id.action_settings).setEnabled(false);
+		return super.onCreateOptionsMenu(menu);
+	};
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(actionNotConnected.equals(item)){
+			//change the actions on the action bar, from not-connected to connecting
+			actionConnected.setVisible(false);
+			actionNotConnected.setVisible(false);
+			actionConnecting.setVisible(true);
+			Toast.makeText(this, "Connecting the device, please wait.", Toast.LENGTH_SHORT).show();
+			
+			//stop the old service and start a new one 
+			Intent serviceIntent = new Intent(this, BluetoothService.class);
+			stopService(serviceIntent);
+			startService(serviceIntent);
+		}
+		return super.onOptionsItemSelected(item);
+	}
+	
     @Override
     protected void onResume() {
         activityCompletionStateFile = new File(InformationActivity.subjectDirPath, "activityCompletionState.txt");
@@ -182,6 +252,16 @@ public class MainActivity extends android.app.Activity{
     	super.onResume();
     }
     
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	
+    	unregisterReceiver(bluetoothStateReceiver);
+    	
+    	Intent serviceIntent = new Intent(this, BluetoothService.class);
+    	Log.d(TAG, "Stop BluetoothService: " + stopService(serviceIntent));
+    };
+    
     ArrayList<HumanActivity> getActivities(){
     	ArrayList<HumanActivity> activities = new ArrayList<HumanActivity>();
     	
@@ -190,7 +270,9 @@ public class MainActivity extends android.app.Activity{
     	//********************simple activity********************
     	//sitting
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Sit straight", 60));
+    	steps.add(new Step("Sit with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then sit back in", 10));
+    	steps.add(new Step("Keep sitting until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"sitting", 
     			R.string.sitting, 
@@ -199,7 +281,9 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//standing
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Stand still", 60));
+    	steps.add(new Step("Stand with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then stand back in", 10));
+    	steps.add(new Step("Keep standing until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"standing", 
     			R.string.standing,
@@ -208,7 +292,9 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//lying
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Lying down", 60));
+    	steps.add(new Step("Lay down with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then lay back in", 10));
+    	steps.add(new Step("Keep lying until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"lying", 
     			R.string.lying,
@@ -217,7 +303,9 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//walking
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Walking", 120));
+    	steps.add(new Step("Walk with phone in hand for", 60));
+    	steps.add(new Step("Put the phone in pants pocket and then back walk in", 10));
+    	steps.add(new Step("Keep walking until hearing \"beep\" for", 60));
     	activities.add(new HumanActivity(
     			"walking", 
     			R.string.walking,
@@ -226,7 +314,7 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//running
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Runnning", 120));
+    	steps.add(new Step("Run with phone in hand for", 120));
     	activities.add(new HumanActivity(
     			"running", 
     			R.string.running,
@@ -235,7 +323,7 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//climbing upstairs
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Climbing Upstairs", 0));
+    	steps.add(new Step("Climb Upstairs after pressing start with phone in hand", 0));
     	activities.add(new HumanActivity(
     			"climbing_upstairs", 
     			R.string.climbing_upstairs,
@@ -243,9 +331,18 @@ public class MainActivity extends android.app.Activity{
     			R.drawable.climbing,
     			steps
     	));
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Press start, put the phone in pocket and then climb upstairs", 0));
+    	activities.add(new HumanActivity(
+    			"climbing_upstairs", 
+    			R.string.climbing_upstairs_pocket,
+    			R.string.instruction_activity_climbing_upstairs_pocket,
+    			R.drawable.climbing,
+    			steps
+    	));
     	//climbing downstairs
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Climbing Downstairs", 0));
+    	steps.add(new Step("Climb Downstairs after pressing start with phone in hand", 0));
     	activities.add(new HumanActivity(
     			"climbing_downstairs", 
     			R.string.climbing_downstairs,
@@ -253,20 +350,29 @@ public class MainActivity extends android.app.Activity{
     			R.drawable.climbing,
     			steps
     	));
+    	steps = new ArrayList<Step>();
+    	steps.add(new Step("Press start, put the phone in pocket and then climb downstairs", 0));
+    	activities.add(new HumanActivity(
+    			"climbing_downstairs", 
+    			R.string.climbing_downstairs_pocket,
+    			R.string.instruction_activity_climbing_downstairs_pocket,
+    			R.drawable.climbing,
+    			steps
+    	));
     	
     	//********************relative ********************
     	//relative sitting
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Sit straight", 15));
-    	steps.add(new Step("Lean forward", 5));
-    	steps.add(new Step("Sit back straight", 5));
-    	steps.add(new Step("Lean backward", 5));
-    	steps.add(new Step("Sit back straight", 5));
-    	steps.add(new Step("Rotate trunk to right", 5));
-    	steps.add(new Step("Rotate back to straight", 5));
-    	steps.add(new Step("Rotate trunk to left", 5));
-    	steps.add(new Step("Rotate back to straight", 5));
-    	steps.add(new Step("Stand up", 5));
+    	steps.add(new Step("Sit straight for", 15));
+    	steps.add(new Step("Lean forward for", 5));
+    	steps.add(new Step("Sit back straight for", 5));
+    	steps.add(new Step("Lean backward for", 5));
+    	steps.add(new Step("Sit back straight for", 5));
+    	steps.add(new Step("Rotate trunk to right for", 5));
+    	steps.add(new Step("Rotate back to straight for", 5));
+    	steps.add(new Step("Rotate trunk to left for", 5));
+    	steps.add(new Step("Rotate back to straight for", 5));
+    	steps.add(new Step("Stand up for", 5));
     	activities.add(new HumanActivity(
     			"relative_sitting", 
     			R.string.relative_sitting,
@@ -275,14 +381,14 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//relative standing
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Stand still", 15));
-    	steps.add(new Step("Rotate trunk to right", 5));
-    	steps.add(new Step("Rotate back to the front", 5));
-    	steps.add(new Step("Rotate trunk to left", 5));
-    	steps.add(new Step("Rotate back to the front", 5));
-    	steps.add(new Step("Move up and down left arm", 5));
-    	steps.add(new Step("Stand still", 5));
-    	steps.add(new Step("Move up and down right arm", 5));
+    	steps.add(new Step("Stand still for", 15));
+    	steps.add(new Step("Rotate trunk to right for", 5));
+    	steps.add(new Step("Rotate back to the front for", 5));
+    	steps.add(new Step("Rotate trunk to left for", 5));
+    	steps.add(new Step("Rotate back to the front for", 5));
+    	steps.add(new Step("Move up and down left arm for", 5));
+    	steps.add(new Step("Stand still for", 5));
+    	steps.add(new Step("Move up and down right arm for", 5));
     	steps.add(new Step("Stand still", 5));
     	activities.add(new HumanActivity(
     			"relative_standing", 
@@ -292,12 +398,12 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	//relative lying
     	steps = new ArrayList<Step>();
-    	steps.add(new Step("Lying with face up", 15));
+    	steps.add(new Step("Lying with face up for", 15));
     	steps.add(new Step("Turn to left", 5));
-    	steps.add(new Step("Lying back with face up", 5));
-    	steps.add(new Step("Turn to right", 5));
-    	steps.add(new Step("Lying back with face up", 5));
-    	steps.add(new Step("Sit up", 5));
+    	steps.add(new Step("Lying back with face up for", 5));
+    	steps.add(new Step("Turn to right for", 5));
+    	steps.add(new Step("Lying back with face up for", 5));
+    	steps.add(new Step("Sit up for", 5));
     	activities.add(new HumanActivity(
     			"relative_lying", 
     			R.string.relative_lying,
@@ -306,47 +412,47 @@ public class MainActivity extends android.app.Activity{
     			steps));
     	
     	//********************phone in pocket ********************
-    	//sitting with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
-    	steps.add(new Step("Keep sitting straight", 60));
-    	activities.add(new HumanActivity(
-    			"sitting_with_phone_in_pocket", 
-    			R.string.sitting_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_sitting,
-    			R.drawable.sitting,
-    			steps));
-    	//standing with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then stand", 10));
-    	steps.add(new Step("Keep standing", 60));
-    	activities.add(new HumanActivity(
-    			"standding_with_phone_in_pocket", 
-    			R.string.standing_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_standing,
-    			R.drawable.standing,
-    			steps));
-    	//sitting with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
-    	steps.add(new Step("Keep sitting straight", 60));
-    	activities.add(new HumanActivity(
-    			"lying_with_phone_in_pocket", 
-    			R.string.lying_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_lying,
-    			R.drawable.lying,
-    			steps));
-    	//sitting with phone in pocket
-    	steps = new ArrayList<Step>();
-    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
-    	steps.add(new Step("Keep sitting straight", 60));
-    	activities.add(new HumanActivity(
-    			"walking_with_phone_in_pocket", 
-    			R.string.walking_with_phone_in_pocket, 
-    			R.string.instruction_activity_pocket_walking,
-    			R.drawable.walking,
-    			steps));
-    	
+//    	//sitting with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then sit straight", 10));
+//    	steps.add(new Step("Keep sitting straight", 60));
+//    	activities.add(new HumanActivity(
+//    			"sitting_with_phone_in_pocket", 
+//    			R.string.sitting_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_sitting,
+//    			R.drawable.sitting,
+//    			steps));
+//    	//standing with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then stand", 10));
+//    	steps.add(new Step("Keep standing", 60));
+//    	activities.add(new HumanActivity(
+//    			"standding_with_phone_in_pocket", 
+//    			R.string.standing_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_standing,
+//    			R.drawable.standing,
+//    			steps));
+//    	//lying with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then lay down", 10));
+//    	steps.add(new Step("Keep lying", 60));
+//    	activities.add(new HumanActivity(
+//    			"lying_with_phone_in_pocket", 
+//    			R.string.lying_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_lying,
+//    			R.drawable.lying,
+//    			steps));
+//    	//walking with phone in pocket
+//    	steps = new ArrayList<Step>();
+//    	steps.add(new Step("Put the phone in pocket and then start walking", 10));
+//    	steps.add(new Step("Keep walking", 60));
+//    	activities.add(new HumanActivity(
+//    			"walking_with_phone_in_pocket", 
+//    			R.string.walking_with_phone_in_pocket, 
+//    			R.string.instruction_activity_pocket_walking,
+//    			R.drawable.walking,
+//    			steps));
+//    	
     	return activities;
     }
     
@@ -392,7 +498,6 @@ public class MainActivity extends android.app.Activity{
 		Context context;
 		LayoutInflater inflater;
 		ArrayList<HumanActivity> activities;
-		
 		
 		public ActivityAdapter(Context context, ArrayList<HumanActivity> activities) {
 			this.context = context;

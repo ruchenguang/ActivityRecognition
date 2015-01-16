@@ -37,13 +37,15 @@
     <string name="title_activity_main">Choose a Activity</string>
     <string name="instruction_activity">Choose activity for detailed instruction and to start</string>
     
-    <string name="sitting">Sitting (60s)</string>
-    <string name="standing">Standing (60s)</string>
-    <string name="lying">Lying (60s)</string>
-    <string name="walking">Walking (120s)</string>
-    <string name="running">Running (120s)</string>
-    <string name="climbing_upstairs">Climbing Upstairs (1F)</string>
-    <string name="climbing_downstairs">Climbing Downstairs (1F)</string>
+    <string name="sitting">Sitting</string>
+    <string name="standing">Standing</string>
+    <string name="lying">Lying</string>
+    <string name="walking">Walking</string>
+    <string name="running">Running</string>
+    <string name="climbing_upstairs">Climbing Upstairs (hand)</string>
+    <string name="climbing_downstairs">Climbing Downstairs (hand)</string>
+	<string name="climbing_upstairs_pocket">Climbing Upstairs (pocket)</string>
+    <string name="climbing_downstairs_pocket">Climbing Downstairs (pocket)</string>
     
     <string name="relative_sitting">Relative motion in Sitting</string>
     <string name="relative_standing">Relative motion in Standing</string>
@@ -60,15 +62,16 @@
     <string name="title_exit_not_finished">Notice!</string>
     <string name="message_exit_finished">You have helped finishing all the activities! Thanks again for participating. Do you want to leave now?</string>
     <string name="message_exit_not_finished">You have not finished all the activities yet. None of the data will be saved. Are you sure you want to exist? </string>
-    
+    	
     <!-- For DataColletionActivity -->
     <string name="title_activity_data_collection">Let\'s collect data</string>
     
-    <string name="instruction_activity_sitting">Please sit straight for 60 seconds.</string>
-    <string name="instruction_activity_standing">Please stand still for 60 seconds.</string>
-    <string name="instruction_activity_lying">Please lying down for 60 seconds.</string>
-    <string name="instruction_activity_walking">Please walk straight on a level floor with your normal speed for 120s.</string>
-    <string name="instruction_activity_running">Please run straight on a level floor with your normal speed for 120s.</string>
+    <string name="instruction_activity_sitting">Please first sit with phone in hand, and then with phone in pants pocket.</string>
+    <string name="instruction_activity_standing">Please first stand with phone in hand, and then with phone in pants pocket.</string>
+    <string name="instruction_activity_lying">Please first lay down with phone in hand, and then with phone in pants pocket.</string>
+    <string name="instruction_activity_walking">Please walk straight on a level floor in your normal speed with phone in hand, 
+        and then with phone in pants pocket.</string>
+    <string name="instruction_activity_running">Please run straight on a level floor with your normal speed.</string>
     <string name="instruction_activity_climbing_upstairs">Please Climb up one floor in HFH with your normal speed and press “finish” when done.</string>
     <string name="instruction_activity_climbing_downstairs">Please Climb down one floor with your normal speed and press “finish” when done.</string>
     
@@ -76,8 +79,13 @@
     <string name="instruction_activity_relative_standing">Relative motion in standing.</string>
     <string name="instruction_activity_relative_lying">Relative motion in Lying.</string>
     
-    <string name="instruction_activity_pocket_standing" >Press start button, 
-        then put the phone in your pants left/right pocket. Keep standing until beep rings.</string>
+    <string name="instruction_activity_climbing_upstairs_pocket" >Press start button, 
+        then put the phone in your pants left/right pocket. 
+        Then climb up one floor, take out the phone and press "finish" when done.</string>
+    <string name="instruction_activity_climbing_downstairs_pocket" >Press start button, 
+        then put the phone in your pants left/right pocket. 
+        Then climb down one floor, take out the phone and press "finish" when done.</string>
+        
     <string name="instruction_activity_pocket_sitting">Press start button,  
         then put the phone in your pants left/right pocket. Keep sitting until beep rings.</string>
     <string name="instruction_activity_pocket_lying" >Press start button, 
@@ -85,4 +93,12 @@
     <string name="instruction_activity_pocket_walking" >Press start button, 
         then put the phone in your pants left/right pocket. Keep walking until beep rings.</string>
     
+    
+   	<!-- For the Action Bar -->
+   	<string name="action_connected">Connected</string>
+   	<string name="action_not_connected">Reconnect</string>
+   	<string name="action_connecting">Connecting</string>
+   	
+   	<string name="action_settings">Settings</string>
+   	
 </resources>
