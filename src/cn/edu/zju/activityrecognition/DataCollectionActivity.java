@@ -82,8 +82,7 @@ public class DataCollectionActivity extends Activity {
 	
 	//sensors inside the phone
 	SensorManager sm;
-	Sensor accelerometer;
-	//Sensor gyroscope;
+	Sensor accelerometer, gyroscope;
 	MySensorEventListener sensorListener;
 	float[] acceValues, gyroValues;
 	FileOutputStream[] phoneSensorsFos = null;
@@ -137,11 +136,11 @@ public class DataCollectionActivity extends Activity {
 		
 		//initiate the sensors inside the phone
 		sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		sensorListener = new MySensorEventListener();
 		accelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		sensorListener = new MySensorEventListener();
 		sm.registerListener(sensorListener, accelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-//		gyroscope = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-//		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
+		sm.registerListener(sensorListener, gyroscope, SensorManager.SENSOR_DELAY_FASTEST);
 		
 		//initiate the user interface for different activity
 		TextView instructionTextView = (TextView) findViewById(R.id.textView1);
@@ -357,12 +356,12 @@ public class DataCollectionActivity extends Activity {
 		
 		File[] phoneSensorsDataFiles = new File[2];
 		phoneSensorsDataFiles[0] = new File(phoneSensorDataPath, "acc_" + fileName);
-//		phoneSensorsDataFiles[1] = new File(phoneSensorDataPath, "gyr_" + fileName);
+		phoneSensorsDataFiles[1] = new File(phoneSensorDataPath, "gyr_" + fileName);
 		
 		try {
 			phoneSensorsFos = new FileOutputStream[2];
 			phoneSensorsFos[0] = new FileOutputStream(phoneSensorsDataFiles[0]);
-//			phoneSensorsFos[1] = new FileOutputStream(phoneSensorsDataFiles[1]);
+			phoneSensorsFos[1] = new FileOutputStream(phoneSensorsDataFiles[1]);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -513,11 +512,11 @@ public class DataCollectionActivity extends Activity {
 								f0.format(acceValues[2]) + " ";
 						phoneSensorsFos[0].write(accString.getBytes());
 						
-//						String gyrString = 
-//								f0.format(gyroValues[0]) + " " +
-//								f0.format(gyroValues[1]) + " " +
-//								f0.format(gyroValues[2]) + " ";
-//						phoneSensorsFos[1].write(gyrString.getBytes());
+						String gyrString = 
+								f0.format(gyroValues[0]) + " " +
+								f0.format(gyroValues[1]) + " " +
+								f0.format(gyroValues[2]) + " ";
+						phoneSensorsFos[1].write(gyrString.getBytes());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -569,8 +568,8 @@ public class DataCollectionActivity extends Activity {
 			Sensor sensor = event.sensor;
 			if(sensor.equals(accelerometer))
 				acceValues = event.values;
-//			if(sensor.equals(gyroscope))
-//				gyroValues = event.values;
+			if(sensor.equals(gyroscope))
+				gyroValues = event.values;
 		}
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
