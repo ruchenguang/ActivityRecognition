@@ -111,6 +111,6 @@
         android:layout_alignBaseline="@+id/editText1"
         android:layout_alignBottom="@+id/editText1"
         android:layout_alignRight="@+id/RadioButton01"
-        android:text="inch" />
+        android:text="@string/inch" />
 
 </RelativeLayout>

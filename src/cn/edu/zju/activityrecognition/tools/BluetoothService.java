@@ -28,7 +28,7 @@ public class BluetoothService extends Service {
 	BluetoothAdapter adapter;
 	static LpmsBThread lpThread;
 	
-	public static final boolean isDebug = false;
+	public static boolean isDebug = false;
 	public static boolean isConnected = false;
 	
 	@Override

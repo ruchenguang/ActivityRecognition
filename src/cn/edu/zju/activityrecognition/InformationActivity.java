@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import cn.edu.zju.activityrecognition.tools.BluetoothService;
 import cn.edu.zju.activityrecognition.tools.ExitApplication;
 
 import android.app.Activity;
@@ -25,6 +26,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class InformationActivity extends Activity {
@@ -46,6 +48,7 @@ public class InformationActivity extends Activity {
 	
 	SharedPreferences sp;
 	
+	int clickCnt = 0;
 	boolean isArchiveCreated = false;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,24 @@ public class InformationActivity extends Activity {
 		setContentView(R.layout.activity_information);
 		ExitApplication.activityList.add(this);
 		setTitle(R.string.title_information_activity);
+		
+		TextView welcomTv = (TextView) findViewById(R.id.textView2);
+		welcomTv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				clickCnt ++;
+				if(clickCnt > 5){
+					clickCnt = 0;
+					BluetoothService.isDebug = !BluetoothService.isDebug;
+					if(BluetoothService.isDebug == true)
+						Toast.makeText(InformationActivity.this, 
+								"Debug mode is on.", Toast.LENGTH_SHORT).show();
+					else
+						Toast.makeText(InformationActivity.this, 
+								"Debug mode is off.", Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 		
 		heightEditText = (EditText) findViewById(R.id.editText1);
 		

@@ -17,6 +17,7 @@
     <string name="info_incomplete">Please fill in your gender and height!</string>
     <string name="info_height_incomplete">Please fill in your height!</string>
     <string name="info_gender_incomplete">Please fill in your gender!</string>
+    <string name="inch">inch</string>
 
     <!-- For InstructionActivity -->
     <string name="title_instruction_activity">Setup Instructions</string>
